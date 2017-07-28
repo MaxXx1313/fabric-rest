@@ -14,8 +14,8 @@
   },
   "scripts": {
     "start": "node index",
-    "dev":"CONFIG_FILE=\"../artifacts/network-config-dev.json\" npm start",
-    "test":"mocha"
+    "dev": "CONFIG_FILE=\"../artifacts/network-config-dev.json\" npm start",
+    "test": "mocha"
   },
   "license": "Apache-2.0",
   "dependencies": {
@@ -32,5 +32,8 @@
     "jsonwebtoken": "^7.3.0",
     "log4js": "^0.6.38",
     "socket.io": "^2.0.3"
+  },
+  "devDependencies": {
+    "express-mock-request": "0.0.2"
   }
 }
