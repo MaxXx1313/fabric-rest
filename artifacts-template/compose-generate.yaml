@@ -1,0 +1,29 @@
+# Copyright Altoros. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+services:
+
+  cli-base:
+    image: hyperledger/fabric-tools
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - FABRIC_CFG_PATH=/etc/hyperledger/artifacts
+    volumes:
+      - /var/run/:/host/var/run/
+      - .:/etc/hyperledger/artifacts #map cryptogen file
+    working_dir: /etc/hyperledger/artifacts
+    command: >
+      bash -c "echo Usage: please, set command explicitlty on container creation"
+
+
+  cli.example.com:
+    container_name: cli.example.com
+    extends:
+      service: cli-base
+
