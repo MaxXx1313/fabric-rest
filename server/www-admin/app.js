@@ -83,12 +83,19 @@ angular.module('nsd.app',[
         name: 'Info',
         guest:false
       }
-    });
+    })
+    .state('app.web', {
+      url: '/web',
+      data:{
+        absolute: true,
+        name: 'Web'
+      }
+    })
 
 })
 
 // THIS method should be called BEFORE navigateDefault()
-.run(function(UserService, $rootScope, $state, $log){
+.run(function(UserService, $rootScope, $state, $window, $log){
 
   //
   var loginState = 'app.login';
@@ -115,6 +122,13 @@ angular.module('nsd.app',[
         goLogin();
       }
     }
+
+    if(toState.data.absolute){
+      event.preventDefault(); // transitionTo() promise will be rejected with a 'transition prevented' error
+      $window.location = toState.url;
+      return;
+    }
+
   });
 
   // set state data to root scope
