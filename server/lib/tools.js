@@ -57,7 +57,7 @@ function replaceLong(data){
 
     if (isLong){
       // console.log(data);
-      // TODO: deal with data.unsigned and data.hight
+      // TODO: deal with data.unsigned and data.high
       if(data.high){
         console.warn('replaceLong: high part is not supported yet');
         data = 'OVERFLOW:'+data.low;
@@ -82,6 +82,7 @@ function replaceLong(data){
  * Extract host+port from url
  * @param {string} url
  * @return {string}
+ * @moved CponfigHelper
  */
 function getHost(url){
   //                             1111       222222
