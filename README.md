@@ -1,76 +1,99 @@
-## API server for Hyperledger Fabric 1.0
+# REST API server for Hyperledger Fabric 1.0
 
-A Node.js app that uses **__fabric-client__** & **__fabric-ca-client__** 
-[Node.js SDK](https://github.com/hyperledger/fabric-sdk-node) APIs to interface with peers of 
-[Hyperledger Fabric](https://github.com/hyperledger/fabric) network. Based on the sample app 
-[balance transfer](https://github.com/hyperledger/fabric-samples/tree/release/balance-transfer).
+This server provides a convenient REST interface for web applications to transact on 
+[Hyperledger Fabric 1.0](https://github.com/hyperledger/fabric) network. 
+It uses [Node.js SDK](https://github.com/hyperledger/fabric-sdk-node) API to call peers, orderer and CA servers of 
+network's members.
 
-A REST API endpoint is open for web applications or other systems to transact on the fabric blockchain network. 
-A test web application is served from an http endpoint to invoke chaincodes and display transaction and blockchain info. 
-
-The API server is meant to be run by each member organization; it connects to the organization's CA to get certs for end 
-users and passes these certs to authenticate to blockchain peers as belonging to the organization. 
-
-The test web application allows the end user to enroll with the CA to transact as a member of the organization running 
-the API server. Please note that connection to the API server and the test web app is not password protected. 
+The server can be instantiated from a [docker image](https://hub.docker.com/r/maxxx1313/fabric-rest) and run alongside
+other services like peers and ca servers on a member's host.
  
-A sample network of two organizations and a solo orderer can be started by a 
-[docker-compose script](ledger/docker-compose-template.yaml) that you can customize with your own domain and 
-organization names in [network.sh](network.sh) setup script.
+## REST Server
 
-### Prerequisites:
+The API server is meant to be run by each member organization. It manages user authentication, interacts with peers and
+passes events to the client.
 
-* [Docker](https://www.docker.com/products/overview) - v1.12 or higher
-* [Docker Compose](https://docs.docker.com/compose/overview/) - v1.8 or higher
-* [Git client](https://git-scm.com/downloads) - needed for clone commands
-* **Node.js** v6.9.0 - 6.10.0 ( __Node v7+ is not supported__ )
+See the list of calls in [REST.md](REST.md).
 
-*Optional*: if you'd like to deploy java chaincode you'll need a build of Fabric 1.0 with java enabled. 
-Download and install these docker images instead of the ones available in the release:
+### Authentication
 
-```
-curl -O https://s3.amazonaws.com/synswap/install/fabric-images.tgz
-docker load -i fabric-images.tgz
-```
+The server connects to the organization's CA server to get certs for end users and passes these certs to authenticate 
+to blockchain peers. User requests coming from a web app authenticate with a `Bearer` JWT token for which the server 
+finds a corresponding key cached locally and signs user transactions when it passes them to peers.
 
-### Setup
+### Events
 
-[network.sh](network.sh) script will create docker-compose.yaml, configtx.yaml and cryptogen.yaml files with your custom
-  org names; will run cryptogen to generate crypto material and configtxgen for the orderer genesis block and config
+Block events coming from peers are sent to clients with a popular [socket.io](https://socket.io/) library to be consumed 
+by browser or other clients.
+
+## Admin Web Application 
+
+Admin web application is served from the server's http endpoint for developers to invoke chaincodes and view transaction and 
+block info. Please note that connection to the API server and the test web app is not password protected.
+
+## Network
+ 
+A sample network of two organizations and a solo orderer can be started from a 
+[docker-compose file](ledger/docker-compose-template.yaml) generated together with crypto material by 
+[network.sh](network.sh) setup script. Use this network for testing and development of this project.
+
+To jump start your own application with more robust scripts we recommend 
+[fabric-starter app](https://github.com/olegabu/fabric-starter) which uses this server in a docker instance. 
+
+## Prerequisites:
+
+* **Node.js** v6.9.0+
+* Same prerequisites as for Fabric: 
+  * [Docker](https://www.docker.com/products/overview) - v1.12 or higher
+  * [Docker Compose](https://docs.docker.com/compose/overview/) - v1.8 or higher
+  * [Git client](https://git-scm.com/downloads) - needed for clone commands
+
+
+## Setup
+
+[network.sh](network.sh) script will create `docker-compose.yaml`, `configtx.yaml` and `cryptogen.yaml` files with your custom
+  org names; will run `cryptogen` to generate crypto material and `configtxgen` for the orderer genesis block and config
   transactions.
   
-  The network can be started from the generated docker-compose.yaml; it is run by these docker instances:
+The network can be started from the generated `docker-compose.yaml` with these docker instances:
   * 2 CAs
   * A SOLO orderer
-  * 4 peers (2 peers per Org)
+  * 4 peers: 2 peers per member organization
   
   Once the network is running you can start the API and web app servers. 
 
 ```
- # generate customized yaml files and generate crypto and channel artifacts
- ./network.sh -m generate
+# generate customized yaml files and generate crypto and channel artifacts
+./network.sh -m generate
  
- # start the network
- cd ledger
- docker-compose up
+# start the network
+./network.sh -m up
+
+# tail the logs
+./network.sh -m logs
+ 
+# stop the network
+./network.sh -m down
 ```
 
-Open [http://localhost:4001](http://localhost:4001) for org1 and 
-[http://localhost:4002](http://localhost:4002) for org2.
+Open [http://localhost:4000](http://localhost:4000) for org1 admin web app and 
+[http://localhost:4001](http://localhost:4001) for org2.
  
  You can also interact with the API server directly with an http client of your choice and test with these 
  [sample requests](https://github.com/hyperledger/fabric-samples/tree/release/balance-transfer#sample-rest-apis-requests).
 
-### Run Api in dev mode
+## Development
 
-Dev mode supports editing the files without rebuilding container (for the most of the files, but not for all of them!). 
-For more details see `ledger/docker-compose-server-dev.yaml` file.
+## Run Api in dev mode
+
+Dev mode supports editing source files without rebuilding container (for the most of the files, but not for all of them!). 
+For more details see [docker-compose-server-dev.yaml](ledger/docker-compose-server-dev.yaml) file.
 
 ```
  docker-compose -f ledger/docker-compose-server-dev.yaml up
 ```
 
-### Run preset mode
+## Run preset mode
 
 Preset mode uses predefined certificates and configuration.
 
@@ -85,20 +108,20 @@ Preset mode uses predefined certificates and configuration.
 
 API server for _org1_ and _org2_ become available on port `4001` and `4002` respectively.
 
-_NOTE_ that chaincode instantiation are long process and can be result in timeout. It doesn't mean that it's failed. You can see real state in peero logs or by observing `docker ps` result (something like `dev-peer0.org2.example.com-mycc-v0` means instantiated chaincode).
+_NOTE_ that chaincode instantiation is a long process and may result in a timeout. 
+It doesn't mean it's failed. You can see real state in peer logs or by observing `docker ps` 
+(ex. `dev-peer0.org2.example.com-mycc-v0` means instantiated chaincode).
 
-_NOTE_ Chaincode instantiating may not (and actually will not) instantiated on all the peer at once. instead of this, it will be instantiated on a first request to the peer, so you can see from 2 to 4 running chaincode containers. It's ok.  
+## Network configuration considerations
 
+You can change configuration parameters by editing [network-config.json](server/network-config.json). 
+All paths in the config file should be absolute or relative to the file.
 
-### Network configuration considerations
+### IP Address and PORT information
 
-You have the ability to change configuration parameters by editing [network-config.json](server/network-config.json). All pathes in the config file should be absolute or relative to the file.
-
-#### IP Address and PORT information
-
-If you choose to customize your docker-compose yaml file by hardcoding IP Addresses and PORT information for your peers 
-and orderer, then you MUST also add the identical values into the network-config.json file. 
-The paths shown below will need to be adjusted to match your docker-compose yaml file.
+If you choose to customize your docker-compose file by hardcoding IP Addresses and PORT information for your peers 
+and orderer, then you MUST also add their values to `network-config.json`. 
+The paths shown below will need to be adjusted to match your docker-compose file.
 
 ```
 		"orderer": {
@@ -134,10 +157,15 @@ The paths shown below will need to be adjusted to match your docker-compose yaml
 
 ```
 
-#### Discover IP Address
+### Discover IP Addresses
 
 To retrieve the IP Address for one of your network entities, issue the following command:
 
 ```
 # this will return the IP Address for peer0
 docker inspect peer0 | grep IPAddress
+```
+
+## Acknowledgements
+
+Based on the sample app [balance transfer](https://github.com/hyperledger/fabric-samples/tree/release/balance-transfer).

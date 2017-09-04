@@ -1,73 +1,82 @@
-# REST calls
+# Sample REST calls
 
+## Enroll user
 
+JWT=`curl 'http://localhost:4000/users' -H 'Content-Type: application/json' -d '{"username":"admin"}' | jq -r .token`
 
-## Configuration
+save returned token into env variable JWT to authenticate in subsequent requests
 
-### Network configuration
+echo $JWT
 
-```
-curl -i http://localhost:8081/config
+## List channels the peer joined
 
-```
+curl 'http://localhost:4000/channels?peer=peer1' -H "Authorization: Bearer $JWT"
 
-### Genesis block 
+## List chaincodes instantiated on a channel
 
-(incomplete)
+curl 'http://localhost:4000/chaincodes?channel=mychannel&peer=peer1&type=ready' -H "Authorization: Bearer $JWT"
 
-```
-curl -i http://localhost:8081/genesis
+## Invoke chaincode (ex. `mycc`)
 
-```
+TX=`curl 'http://localhost:4000/channels/mychannel/chaincodes/mycc' -H "Authorization: Bearer $JWT"  -H 'Content-Type: application/json' -d '{"peers":["org1/peer0","org2/peer0"],"fcn":"move","args":["a","b","10"]}' | jq -r .transaction`
 
+save returned token into env variable TX to use subsequent queries
 
+echo $TX
 
+## Query for transaction details
 
-## Channel
+curl "http://localhost:4000/channels/mychannel/transactions/$TX?peer=peer1" -H "Authorization: Bearer $JWT"
 
-### Channels list
+## Query chaincode
 
-Query to fetch channels list
+curl 'http://localhost:4000/channels/mychannel/chaincodes/mycc?args=%5B%22a%22%5D&fcn=query&peer=org1%2Fpeer0' -H "Authorization: Bearer $JWT"
 
-```
-curl -i http://localhost:8081/channels
+## Query channel for basic block info
 
-```
+HASH=`curl 'http://localhost:4000/channels/mychannel?peer=peer1' -H "Authorization: Bearer $JWT" | jq -r .currentBlockHash`
 
+save returned currentBlockHash into env variable HASH to use subsequent queries
 
-### Create channel
+echo $HASH 
 
-_Will be filled later_
+## Query for block info
 
-```
-curl -iXPOST http://localhost:8081/channels -d '{...}'
+curl "http://localhost:4000/channels/mychannel/blocks?hash=$HASH&peer=peer1" -H "Authorization: Bearer $JWT"
 
-```
+# Utility Calls
 
+## Network configuration
 
-### Join channel
+curl -i http://localhost:4000/config
 
-_Will be filled later_
+## Genesis block 
 
-```
-curl -iXPOST http://localhost:8081/channels/:channelName/peers -d '{...}'
+curl -i http://localhost:4000/genesis
 
-```
+## Create channel
 
-
-### Channel info
-
-Query for Channel Information
-
-```
-curl -i http://localhost:8081/channels/<channelName>
+_Work In Progress_
 
 ```
-
-### Channel binary config
-(incomplete)
+curl -iXPOST http://localhost:4000/channels -d '{...}'
 
 ```
-curl -i http://localhost:8081/channels/<channelName>/config
+
+## Join channel
+
+_Work In Progress_
+
+```
+curl -iXPOST http://localhost:4000/channels/:channelName/peers -d '{...}'
+
+```
+
+## Channel binary config
+
+_Work In Progress_
+
+```
+curl -i http://localhost:4000/channels/<channelName>/config
 
 ```
