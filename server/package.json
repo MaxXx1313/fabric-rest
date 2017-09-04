@@ -1,6 +1,6 @@
 {
   "name": "fabric-rest",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "API server for Hyperledger Fabric 1.0",
   "main": "app/index.js",
   "keywords": [
