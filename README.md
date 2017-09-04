@@ -13,13 +13,13 @@ other services like peers and ca servers on a member's host.
 The API server is meant to be run by each member organization. It manages user authentication, interacts with peers and
 passes events to the client.
 
-See the list of calls in [REST.md](REST.md).
+See the example calls in [REST.md](REST.md).
 
 ### Authentication
 
 The server connects to the organization's CA server to get certs for end users and passes these certs to authenticate 
-to blockchain peers. User requests coming from a web app authenticate with a `Bearer` JWT token for which the server 
-finds a corresponding key cached locally and signs user transactions when it passes them to peers.
+to blockchain peers. User requests coming from a web app authenticate with a Bearer JWT token for which the server 
+finds a corresponding key cached locally and signs user transactions with it when it passes them to peers.
 
 ### Events
 
@@ -28,7 +28,7 @@ by browser or other clients.
 
 ## Admin Web Application 
 
-Admin web application is served from the server's http endpoint for developers to invoke chaincodes and view transaction and 
+Admin web application is served from the http endpoint for developers to invoke chaincodes and view transaction and 
 block info. Please note that connection to the API server and the test web app is not password protected.
 
 ## Network
@@ -112,7 +112,7 @@ _NOTE_ that chaincode instantiation is a long process and may result in a timeou
 It doesn't mean it's failed. You can see real state in peer logs or by observing `docker ps` 
 (ex. `dev-peer0.org2.example.com-mycc-v0` means instantiated chaincode).
 
-## Network configuration considerations
+## Network configuration
 
 You can change configuration parameters by editing [network-config.json](server/network-config.json). 
 All paths in the config file should be absolute or relative to the file.
