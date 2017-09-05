@@ -31,9 +31,7 @@ by browser or other clients.
 Admin web application is served from the http endpoint for developers to invoke chaincodes and view transaction and 
 block info. Please note that connection to the API server and the test web app is not password protected.
 
-![invoke page](images/Screenshot-invoke.png)
-
-![info page](images/Screenshot-info.png)
+![invoke page](images/Screenshot-invoke.png) ![info page](images/Screenshot-info.png)
 
 ## Network
  
