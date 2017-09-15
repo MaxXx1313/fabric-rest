@@ -57,7 +57,7 @@ function loadMiddlewares(app, configFile){
     logger.debug('mounting:', name||file, name ? '\t=> '+file : '' );
 
     let expressModule = require(file);
-    let expressMiddleware = expressModule.call(expressModule, require);
+    let expressMiddleware = expressModule.call(expressModule, require, app);
     if(typeof expressMiddleware === "function"){
       app.use(expressMiddleware);
     }else{
