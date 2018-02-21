@@ -1,6 +1,6 @@
 {
   "name": "fabric-rest",
-  "version": "0.10.3",
+  "version": "0.11.0",
   "description": "API server for Hyperledger Fabric 1.0",
   "main": "app/index.js",
   "keywords": [
@@ -20,18 +20,18 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "body-parser": "^1.17.1",
+    "body-parser": "^1.18.2",
     "cookie-parser": "^1.4.3",
-    "cors": "^2.8.3",
-    "express": "^4.15.2",
-    "express-bearer-token": "^2.1.0",
-    "express-jwt": "^5.1.0",
-    "express-session": "^1.15.2",
+    "cors": "^2.8.4",
+    "express": "^4.16.2",
+    "express-bearer-token": "^2.1.1",
+    "express-jwt": "^5.3.0",
+    "express-session": "^1.15.6",
     "fabric-ca-client": ">=1.0.0-rc1 <1.0.0-rc1.10",
     "fabric-client": ">=1.0.0-rc1 <1.0.0-rc1.10",
     "fs-extra": "^2.0.0",
     "jsonwebtoken": "^7.3.0",
     "log4js": "^0.6.38",
-    "socket.io": "^2.0.3"
+    "socket.io": "^2.0.4"
   }
 }
