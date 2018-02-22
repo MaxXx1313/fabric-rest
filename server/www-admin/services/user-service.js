@@ -25,11 +25,11 @@ function UserService($log, $rootScope, ApiService, localStorageService) {
 
   UserService.isAuthorized = function(){
     return !!$rootScope._tokenInfo;
-  }
+  };
 
   UserService.getUser = function(){
     return $rootScope._tokenInfo;
-  }
+  };
 
 
   UserService.saveAuthorization = function(user){
