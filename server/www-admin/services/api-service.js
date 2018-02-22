@@ -9,18 +9,29 @@ function ApiService($log, $http, env) {
   var ApiService = this;
   var cfg = env;
 
-  var QUERY_PEER = 'peer1';
+  var QUERY_PEER = null /*'peer1'*/;
 
   /**
    *
    */
   ApiService.getConfig = function(){
     return $http.get(cfg.api+'/config')
-        .then(function(response){ return response.data; });
+        .then(function(response){ return response.data; })
+        .then(function(config){
+
+          // fix: use first found peer
+          QUERY_PEER = Object.keys(config['network-config'][config.org])
+            .filter(function(key){ return key.startsWith('peer'); })
+            [0] //; || 'peer1';
+
+          if (!QUERY_PEER) {
+            console.error('No peer to query. Check configuration');
+            throw new Error('No peer to query. Check configuration');
+          }
+
+          return config;
+        });
   };
-
-
-
 
 
 

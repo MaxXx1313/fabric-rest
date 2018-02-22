@@ -203,7 +203,7 @@ angular.module('nsd.app',[
  * @ngInject
  */
 .run(function(ConfigLoader){
-  ConfigLoader.load();
+  ConfigLoader.load(); // nowait
 })
 
 
@@ -247,7 +247,7 @@ angular.module('nsd.app',[
       return _configPromise;
     }
 
-     /**
+    /**
      * add getOrgs() to netConfig
      * add getPeers(orgId:string) to netConfig
 
@@ -323,7 +323,7 @@ angular.module('nsd.app',[
  */
 .run(function(ConfigLoader){
   ConfigLoader.load();
-})
+});
 
 
 
