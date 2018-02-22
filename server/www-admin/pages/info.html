@@ -12,13 +12,13 @@
 
 
 <h2>Uploaded Chaincodes ({{ctl.chaincodes.length||0}})</h2>
-<ul>
+<ul class="list">
   <li ng-repeat="ch in ctl.chaincodes">{{::ch.name}} ({{::ch.version}})</li>
 </ul>
 
 
 <h2>Channels ({{ctl.channels.length||0}})</h2>
-<ul>
+<ul class="list">
   <li ng-repeat="ch in ctl.channels">{{::ch.channel_id}}</li>
 </ul>
 
@@ -33,7 +33,7 @@
 
 
   <h2>Instatiated Chaincodes ({{ctl.channelChaincodes.length||0}})</h2>
-  <ul>
+  <ul class="list">
     <li ng-repeat="ch in ctl.channelChaincodes">{{::ch.name}} ({{::ch.version}})</li>
   </ul>
 

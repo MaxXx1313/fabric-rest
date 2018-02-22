@@ -125,3 +125,10 @@ div[data-error]:after{
   bottom: 0px;
   left: 0;
 }
+
+ul.list{
+  margin-left: 15px;
+}
+ul.list li{
+ list-style-type: disc;
+}
