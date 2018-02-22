@@ -78,6 +78,13 @@ function ApiService($log, $http, env) {
   };
 
 
+  ApiService.user.refreshToken = function() {
+    // $log.debug('ApiService.refreshToken', username, orgName);
+    return $http.post(cfg.api+'/token', {})
+      .then(function(response){ return response.data; });
+  };
+
+
 
 
 

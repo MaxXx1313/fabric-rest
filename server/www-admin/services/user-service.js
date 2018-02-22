@@ -6,6 +6,13 @@
 function UserService($log, $rootScope, ApiService, localStorageService) {
 
   /**
+   * @const {number} miliseconds for refresh token procedure
+   */
+  var TOKEN_REFRESH_TIME = 10*1000;
+
+  var _refreshTimer;
+
+  /**
    * @param {{username:string, orgName:string}} user
    */
   UserService.signUp = function(user) {
@@ -13,6 +20,7 @@ function UserService($log, $rootScope, ApiService, localStorageService) {
       .then(function(/** @type {TokenInfo} */tokenInfo){
         $rootScope._tokenInfo = tokenInfo;
         UserService.saveAuthorization(tokenInfo);
+        UserService._setRefreshTimer();
         return tokenInfo;
       });
   };
@@ -34,7 +42,7 @@ function UserService($log, $rootScope, ApiService, localStorageService) {
 
   UserService.saveAuthorization = function(user){
     if(user){
-      user.tokenData = parseTokenData(user.token);
+      user.tokenData = parseJWTData(user.token);
     }
     localStorageService.set('user', user);
     $rootScope._tokenInfo = user;
@@ -46,7 +54,7 @@ function UserService($log, $rootScope, ApiService, localStorageService) {
 
     if(tokenInfo){
       // {"exp":1500343472,"username":"test22","orgName":"org2","iat":1500307472}
-      tokenInfo.tokenData = parseTokenData(tokenInfo.token);
+      tokenInfo.tokenData = parseJWTData(tokenInfo.token);
       // TODO: check expire time
 
       if( (tokenInfo.tokenData.exp||0)*1000 <= Date.now() ){
@@ -55,13 +63,55 @@ function UserService($log, $rootScope, ApiService, localStorageService) {
       }
     }
     $rootScope._tokenInfo = tokenInfo;
+
+    UserService._setRefreshTimer();
   };
 
+  UserService.refreshToken = function(){
+    return ApiService.user.refreshToken()
+      .then(function(/** @type {TokenInfo} */tokenInfo){
+        $rootScope._tokenInfo = tokenInfo;
+        UserService.saveAuthorization(tokenInfo);
+
+        UserService._setRefreshTimer();
+        return tokenInfo;
+      });
+  };
+
+
+  UserService._setRefreshTimer = function() {
+    if(!$rootScope._tokenInfo){
+      // not authorized
+      return;
+    }
+    if(!$rootScope._tokenInfo.tokenData || !$rootScope._tokenInfo.tokenData.exp){
+      // malformed token?
+      console.warn('UserService: no expiration date in token');
+      return;
+    }
+    var refreshTimeout = $rootScope._tokenInfo.tokenData.exp * 1000 - TOKEN_REFRESH_TIME - Date.now();
+    if(refreshTimeout < 0) {
+      console.warn('Token expired');
+      refreshTimeout = 0;
+    }
+    console.warn('UserService: refresh token in %s ms', refreshTimeout);
+
+    if(_refreshTimer){
+      clearTimeout(_refreshTimer);
+      _refreshTimer = null;
+    }
+
+    _refreshTimer = setTimeout(function(){
+      _refreshTimer = null;
+
+      UserService.refreshToken();
+    }, refreshTimeout);
+  };
 
   /**
    *
    */
-  function parseTokenData(token){
+  function parseJWTData(token){
       token = token || "";
       var tokenDataEncoded = token.split('.')[1];
       var tokenData = null;

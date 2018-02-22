@@ -45,7 +45,7 @@ logger.info('Admin     : ' + USERNAME);
 logger.info('Org name  : ' + ORG);
 
 if(!ORG){
-    throw new Error('ORG must be set in environment');
+  throw new Error('ORG must be set in environment');
 }
 
 
@@ -137,6 +137,16 @@ app.use(function(req, res, next) {
 });
 
 
+// refresh token
+app.post('/token', function(req, res) {
+    var token = jwt.sign({
+        exp: Math.floor(Date.now() / 1000) + parseInt(config.jwt_expiretime),
+        username: req.username,
+        orgName: req.orgname
+    }, app.get('secret'));
+
+    res.send({token: token});
+});
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////// REST ENDPOINTS START HERE ///////////////////////////

@@ -3,11 +3,12 @@ var js_template_pre = '(function (window) {  window.$VAR = ';
 var js_template_post = '; }(this));';
 
 /**
+ * @param {string} [varName]
  * @param {object} envConfig
  */
 function envConfigMiddleware(varName, envConfig){
   // first argument can be omitted
-  if(typeof envConfig === "undefined"){
+  if (typeof envConfig === "undefined"){
     envConfig = varName;
     varName = '__env';
   }
