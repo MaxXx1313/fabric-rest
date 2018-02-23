@@ -41,6 +41,23 @@ function SocketService(env, $rootScope, $log) {
       $rootScope.$apply();
     });
 
+
+    socket.on('chainblock', function(block){
+
+      block.getChannel = block_getChannel;
+
+      $rootScope.$broadcast('chainblock', block); // emit global event
+
+      // emit channel specific event ('-c-' - is a first letter from 'channel')
+      var blockChannel = block.getChannel();
+      $log.debug('server block channel:', blockChannel);
+      $rootScope.$broadcast('chainblock-ch-'+blockChannel, block);
+
+      // emit type specific event ('-t-' - is a first letter from 'type')
+      // $rootScope.$broadcast('chainblock-t-'+blockType, e);
+    });
+
+
     // socket.on('ping', function(){
     //   console.log('socket: ping');
     // });
@@ -51,6 +68,18 @@ function SocketService(env, $rootScope, $log) {
     return socket;
   };
 
+  // 'this' is a block
+  function block_getChannel(){
+    try{
+      return this.data.data[0].payload.header.channel_header.channel_id;
+    } catch(e) {
+      return null;
+    }
+  }
+
+  SocketService.getBlockChannel = function(block){
+   return block.getChannel();
+  };
 
   /**
    *
