@@ -1,5 +1,5 @@
 
-FROM maxxx1313/fabric-rest-core:0.11.0
+FROM maxxx1313/fabric-rest-core:0.12.0
 
 # LABEL com.altoros.version="0.11"
 

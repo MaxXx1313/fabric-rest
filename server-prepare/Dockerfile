@@ -1,5 +1,5 @@
 
-FROM node:6-alpine
+FROM node:8-alpine
 
 MAINTAINER altoros.com
 LABEL com.altoros.description="Fabric 1.0 rest api"
