@@ -190,9 +190,9 @@ function printHelp () {
   echo "Typically, one would first generate the required certificates and "
   echo "genesis block, then bring up the network. e.g.:"
   echo
-  echo "	sudo network.sh -m generate"
-  echo "	network.sh -m up"
-  echo "	network.sh -m down"
+  echo "  sudo network.sh -m generate"
+  echo "  network.sh -m up"
+  echo "  network.sh -m down"
 }
 
 # Parse commandline args
@@ -206,6 +206,23 @@ while getopts "h?m:" opt; do
     ;;
   esac
 done
+
+if [ ".${MODE}" == "." ]; then
+  printHelp
+  exit 1
+fi;
+
+#
+SCRIPT="scripts/${MODE}.sh"
+
+if [ ! -f "${SCRIPT}" ]; then
+  echo "Invalid operation: ${MODE}"
+  exit 2
+fi;
+
+"$SCRIPT" "$@"
+
+exit
 
 if [ "${MODE}" == "up" ]; then
   networkUp
