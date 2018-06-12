@@ -6,11 +6,14 @@ const RELPATH = '/../'; // relative path to server root. Change it during file m
 const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
+var hfc = require('fabric-client');
 
 var log4js = require('log4js');
 
 var logger = log4js.getLogger('fabric-client');
+
 logger.setLevel('INFO');
+hfc.setLogger(logger);
 
 // const CONFIG_FILE_DEFAULT = '/etc/hyperledger/artifacts/network-config.json';
 const CONFIG_FILE_DEFAULT = '../artifacts/network-config.json';
@@ -20,20 +23,18 @@ var configFile = process.env.CONFIG_FILE || CONFIG_FILE_DEFAULT;
 if (!path.isAbsolute(configFile)) {
     configFile = path.join(__dirname, RELPATH, configFile);
 }
+
 var configDir = path.dirname(configFile);
 
-logger.info('Load config file:', configFile);
-var config = JSON.parse(fs.readFileSync(configFile).toString());
-
-///////
-var hfc = require('fabric-client');
-hfc.setLogger(logger);
-hfc.addConfigFile(configFile);  // this config needed for lib-fabric
-
-hfc.setConfigSetting('config', config);  // this config needed for client
 hfc.setConfigSetting('config-dir', configDir);
 hfc.setConfigSetting('config-file', configFile);
+logger.info('Load config file:', configFile);
 
+if (fs.existsSync(configFile)) {
+    var config = JSON.parse(fs.readFileSync(configFile).toString());
+    hfc.addConfigFile(configFile);  // this config needed for lib-fabric
+    hfc.setConfigSetting('config', config);  // this config needed for client
+}
 
 var ibpConfigFile = path.join(configFile, '/../', 'ibp-config.json');
 logger.info('Load config file:', ibpConfigFile);
