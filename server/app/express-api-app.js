@@ -31,6 +31,7 @@ var install       = require('../lib-fabric/install-chaincode.js');
 var instantiate   = require('../lib-fabric/instantiate-chaincode.js');
 var invoke        = require('../lib-fabric/invoke-transaction.js');
 var query         = require('../lib-fabric/query.js');
+// var channelConfig = require('../lib-fabric/channel-config.js').channelConfig;
 
 var config = require('../config.json');
 var packageInfo = require('../package.json');
@@ -214,6 +215,27 @@ adminPartyApp.post('/channels', function(req, res) {
         createChannel.createChannel(chaincodeName, channelConfigPath, USERNAME, ORG)
     );
 });
+
+
+/*
+app.get('/channels/:channelName/config', function(req, res) {
+    logger.info('----------------- C H A N N E L  C O N F I G-----------------');
+    var chaincodeName = req.params.channelName;
+    var peerId = req.query.peer || null;
+    var peer   = getPeerHostByCompositeID(peerId);
+    logger.debug('channelName : ' + chaincodeName);
+    logger.debug('peer : ' + peer);
+
+    if (!chaincodeName) {
+        res.error(getErrorMessage('\'channelName\''));
+        return;
+    }
+
+    res.promise(
+        channelConfig(chaincodeName, peer, USERNAME, ORG)
+    );
+});
+*/
 
 
 // (admin party) Join Channel
@@ -438,7 +460,7 @@ app.get('/channels/:channelName/chaincodes/:chaincodeName', function(req, res) {
     logger.debug('==================== QUERY BY CHAINCODE ==================');
     var channelName   = req.params.channelName;
     var chaincodeName = req.params.chaincodeName;
-    let args = req.query.args;
+    let args = req.query.args || '[\'\']';
     let fcn  = req.query.fcn;
     let peerId = req.query.peer;
     var peerInfo = getPeerInfoByCompositeID(peerId);
@@ -457,13 +479,12 @@ app.get('/channels/:channelName/chaincodes/:chaincodeName', function(req, res) {
         res.error(getErrorMessage('\'fcn\''));
         return;
     }
-    if (!args) {
-      res.error(getErrorMessage('\'args\''));
-      return;
-    }
     if (!peerInfo) {
       res.error(getErrorMessage('\'peerInfo\''));
       return;
+    }
+    if (!peerInfo.org) {
+      peerInfo.org = ORG;
     }
     if (peerInfo.org !== ORG) {
       res.error("Cannot query foreign peers");
