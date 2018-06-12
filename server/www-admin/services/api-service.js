@@ -24,7 +24,7 @@ function ApiService($log, $http, env) {
 
           // fix: use first found peer
           QUERY_PEER = Object.keys(config['network-config'][config.org])
-            .filter(function(key){ return key.startsWith('peer'); })
+            .filter(function(key){ return key.includes('peer'); })
             [0]; //; || 'peer1';
 
           if (!QUERY_PEER) {

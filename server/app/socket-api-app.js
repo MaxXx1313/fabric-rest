@@ -30,7 +30,7 @@ function init(io, options){
     throw new Error('No such organisation in config: '+ORG);
   }
 
-  var PEERS = Object.keys(orgConfig).filter(k=>k.startsWith('peer'));
+  var PEERS = Object.keys(orgConfig).filter(k=>k.includes('peer'));
   var peersAddress = PEERS.map(p=>tools.getHost(networkConfig[ORG][p].requests));
 
   // log connections
