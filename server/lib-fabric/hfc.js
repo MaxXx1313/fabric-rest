@@ -39,13 +39,12 @@ var ibpConfigFile = path.join(configFile, '/../', 'ibp-config.json');
 logger.info('Load config file:', ibpConfigFile);
 if (fs.existsSync(ibpConfigFile)) {
 
-    hfc.addConfigFile(ibpConfigFile);
     var ibpConfig = JSON.parse(fs.readFileSync(ibpConfigFile).toString());
 
     var networkConfig = {
         "orderer": {
             url: _.get(ibpConfig, 'orderers.orderer.url'),
-            tlsCACerts:_.get(ibpConfig, 'orderers.orderer.tlsCACerts.pem')
+            tlsCACerts: _.get(ibpConfig, 'orderers.orderer.tlsCACerts.pem')
         }
     };
 
@@ -62,13 +61,14 @@ if (fs.existsSync(ibpConfigFile)) {
             networkConfig[org][peer] = {
                 requests: _.get(ibpConfig, `peers.${peer}.url`),
                 events: _.get(ibpConfig, `peers.${peer}.eventUrl`),
-                tlsCACerts:_.get(ibpConfig, `peers.${peer}.tlsCACerts.pem`)
+                tlsCACerts: _.get(ibpConfig, `peers.${peer}.tlsCACerts.pem`)
             };
         });
     });
 
-    hfc.setConfigSetting('config', ibpConfig);
-
+    hfc.addConfigFile(ibpConfigFile);
+    hfc.setConfigSetting('config', {"network-config": networkConfig});
+    hfc.setConfigSetting('network-config', networkConfig);
 
 }
 
