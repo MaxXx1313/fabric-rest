@@ -67,8 +67,8 @@ function getCAService(orgID){
 
     const allPeers = hfc.getConfigSetting("peers");
 
-    // TODO: TLS
-    const certData = allPeers['org1-peer1'].tlsCACerts.pem;
+    // TODO: make correct TLS extraction (use "organizations" values)
+    const certData = allPeers[ Object.keys(allPeers).filter(name => name.includes(orgID))[0] ].tlsCACerts.pem;
     const	tlsOptions = {
       trustedRoots: [certData],
       verify: true

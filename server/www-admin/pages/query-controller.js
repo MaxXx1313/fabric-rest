@@ -9,13 +9,17 @@ function QueryController($scope, ChannelService, ConfigLoader, $log, $q) {
   var ctl = this;
 
   ctl.channels = [];
+  ctl.channelsListAvailable = true;
+
   ctl.chaincodes = [];
+  ctl.chaincodesListAvailable = true;
+
   ctl.transaction = null;
   ctl.invokeInProgress = false;
 
   // init
   var orgs = ConfigLoader.getOrgs();
-  var allPeers = []
+  var allPeers = [];
   orgs.forEach(function(org){
     var peers = ConfigLoader.getPeers(org.id);
     allPeers.push.apply(allPeers, peers);
@@ -28,22 +32,32 @@ function QueryController($scope, ChannelService, ConfigLoader, $log, $q) {
 
   ctl.getPeers = function(){
     return allPeers;
-  }
+  };
 
 
-  ctl.getChannels = function(){
-    return ChannelService.list().then(function(dataList){
-      ctl.channels = dataList;
-    });
+  ctl.getChannels = function() {
+    return ChannelService.list().then(function (dataList) {
+        ctl.channels = dataList;
+        ctl.channelsListAvailable = true;
+      })
+      .catch(function (e) {
+        ctl.channelsListAvailable = false;
+        throw e;
+      });
   };
 
   ctl.getChaincodes = function(){
-    if(!$scope.selectedChannel){
+    var selectedChannel = ctl.selectedChannel;
+    if(!selectedChannel){
       return $q.resolve([]);
     }
-    return ChannelService.listChannelChaincodes($scope.selectedChannel.channel_id).then(function(dataList){
-      ctl.chaincodes = dataList;
-    });
+    return ChannelService.listChannelChaincodes(selectedChannel.channel_id).then(function(dataList){
+        ctl.chaincodes = dataList;
+        ctl.chaincodesListAvailable = true;
+      })
+      .catch(function(e) {
+        ctl.chaincodesListAvailable = false;
+      });
   };
 
 
@@ -73,7 +87,7 @@ function QueryController($scope, ChannelService, ConfigLoader, $log, $q) {
       .finally(function(){
         ctl.invokeInProgress = false;
       });
-  }
+  };
 
   function getTxResult(transaction){
     var result = null;
@@ -91,7 +105,7 @@ function QueryController($scope, ChannelService, ConfigLoader, $log, $q) {
       });
     }catch(e){
       console.info(e);
-      result = null
+      result = null;
     }
     return result;
   }
@@ -123,12 +137,12 @@ function QueryController($scope, ChannelService, ConfigLoader, $log, $q) {
       .finally(function(){
         ctl.invokeInProgress = false;
       });
-  }
+  };
 
 
   //
   ctl.getChannels();
-  $scope.$watch('selectedChannel', ctl.getChaincodes );
+  $scope.$watch(function(){ return ctl.selectedChannel; }, ctl.getChaincodes );
 
 }
 

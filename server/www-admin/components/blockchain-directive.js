@@ -84,11 +84,11 @@ angular.module('nsd.directive.blockchain', ['nsd.service.socket'])
 
       ctl.getBlockType = function(block){
         try{
-          return block.data.data[0].payload.header.channel_header.type;
+          return ''+block.data.data[0].payload.header.channel_header.type;
         }catch(e){
           return null;
         }
-      }
+      };
 
       /**
        *
