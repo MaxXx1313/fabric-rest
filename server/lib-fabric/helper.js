@@ -57,7 +57,7 @@ var caServices = {};
  * @return {CopService}
  */
 function getCAService(orgID){
-  var username = getCAAdminCredentials().username;
+  var username = getCAAdminCredentials(orgID).username;
   var key = username+'/'+orgID;
 
   if(!caServices[key]) {
@@ -65,7 +65,21 @@ function getCAService(orgID){
     let cryptoSuite = hfc.newCryptoSuite();
     cryptoSuite.setCryptoKeyStore(hfc.newCryptoKeyStore({path: getKeyStoreForOrg(username, orgID)}));
 
-    caServices[key] = new CopService(caUrl, null /*default TLS opts*/, '' /* default CA */, cryptoSuite);
+    const allPeers = hfc.getConfigSetting("peers");
+
+    // TODO: TLS
+    const certData = allPeers['org1-peer1'].tlsCACerts.pem;
+    const	tlsOptions = {
+      trustedRoots: [certData],
+      verify: true
+      // trustServerCertificate: true,
+      // sslProvider: 'openSSL',
+      // negotiationType: 'TLS'
+    };
+
+
+    caServices[key] = new CopService(caUrl, tlsOptions /*default TLS opts*/, '' /* default CA */, cryptoSuite);
+
   }
   return caServices[key];
 }
@@ -88,7 +102,8 @@ function _initClientForOrg(username, orgID){
   var client = _newClient(username, orgID);
   // init client key store and context
   var p;
-  if( isAdmin(username) ){
+  // TODO: replace 'isAdmin' with 'hasKeyFile' with a check of private key certificate
+  if( false && isAdmin(username, orgID) ){
     // p = _setClientAdminContext(client, orgID);
     p = _setClientContextFromFile(client, orgID);
   } else {
@@ -189,12 +204,9 @@ function _setupChannelPeers(channel, orgID) {
  */
 function _setupPeer(orgID, peerID){
   let data = fs.readFileSync(path.join(CONFIG_DIR, ORGS[orgID][peerID]['tls_cacerts']));
-  let peer = new Peer( ORGS[orgID][peerID].requests,
-    {
-      pem: Buffer.from(data).toString(),
-      'ssl-target-name-override': ORGS[orgID][peerID]['server-hostname']
-    }
-  );
+  let peer = new Peer( ORGS[orgID][peerID].requests, {
+      pem: Buffer.from(data).toString()
+  });
   return peer;
 }
 
@@ -206,8 +218,7 @@ function newOrderer() {
 	let data = fs.readFileSync(path.join(CONFIG_DIR, caRootsPath));
 	let caroots = Buffer.from(data).toString();
 	return new Orderer(ORGS.orderer.url, {
-		'pem': caroots,
-		'ssl-target-name-override': ORGS.orderer['server-hostname']
+		'pem': caroots
 	});
 }
 
@@ -328,8 +339,7 @@ function newPeer(peerUrl) {
 
   let tls_data = fs.readFileSync(path.join(CONFIG_DIR, peerInfo['tls_cacerts']));
   let peer = new Peer('grpcs://' + peerUrl, {
-    pem: Buffer.from(tls_data).toString(),
-    'ssl-target-name-override': peerInfo['server-hostname']
+    pem: Buffer.from(tls_data).toString()
   });
   return peer;
 
@@ -351,13 +361,13 @@ function newEventHub(peerUrl, username, orgID) {
       if (!peerInfo) {
         throw new Error('Failed to find a peer matching the url: ' + peerUrl);
       }
-      let data = fs.readFileSync(path.join(CONFIG_DIR, peerInfo['tls_cacerts']));
+      let certFile = fs.readFileSync(path.join(CONFIG_DIR, peerInfo['tls_cacerts']));
+      let data = Buffer.from( certFile ).toString();
 
       //
       let eventHub = new EventHub(client);
       eventHub.setPeerAddr(peerInfo['events'], {
-        pem: Buffer.from(data).toString(),
-        'ssl-target-name-override': peerInfo['server-hostname']
+        pem: Buffer.from(data).toString()
       });
       return eventHub;
     });
@@ -423,9 +433,11 @@ function getCAClientForOrg(orgID) {
   }
   // caching
   if(!caClients[orgID]){
-    var adminUser = getCAAdminCredentials();
+    var adminUser = getCAAdminCredentials(orgID);
     var client = _newClient(adminUser.username, orgID);
-    caClients[orgID] = _setClientCAAdminContext(client, orgID).then(()=>client);
+    caClients[orgID] = _setClientCAAdminContext(client, orgID)
+      .then(()=>client)
+      .catch(() => { delete caClients[orgID]; });
   }
   return caClients[orgID];
 
@@ -462,11 +474,27 @@ var getMspID = function(org) {
  * @returns {{username:string, password: string}}
  * @ param {string} orgID
  */
-function getCAAdminCredentials(){
-  var users = config.users;
-  var username = users[0].username;
-  var password = users[0].secret;
-  return {username:username, password:password};
+function getCAAdminCredentials(orgID){
+
+
+  let certificateAuthorities = hfc.getConfigSetting('certificateAuthorities');
+  let config1user;
+  try{
+    config1user = certificateAuthorities[orgID+'-ca'].registrar[0];
+  }catch(e){}
+
+  if (!config1user) {
+    var users = config.users;
+    config1user = {
+      enrollId:     users[0].username,
+      enrollSecret: users[0].secret
+    };
+  }
+
+  return {
+    username: config1user.enrollId,
+    password: config1user.enrollSecret
+  };
 }
 
 
@@ -478,7 +506,7 @@ function getCAAdminCredentials(){
  * @returns {Promise.<User>}
  */
 function _setClientCAAdminContext(client, orgID) {
-	var adminUser = getCAAdminCredentials();
+	var adminUser = getCAAdminCredentials(orgID);
   var username = adminUser.username;
   var password = adminUser.password;
 
@@ -563,7 +591,7 @@ function _setClientContextFromCA(client, username, orgID) {
             .then(function(adminUserObj) {
               return caService.register({
                 enrollmentID: username,
-                affiliation: orgID + '.department1'
+                affiliation: orgID
               }, adminUserObj);
             }).then((secret) => {
               enrollmentSecret = secret;
@@ -572,25 +600,29 @@ function _setClientContextFromCA(client, username, orgID) {
                 enrollmentID: username,
                 enrollmentSecret: secret
               });
-            }).then((message) => {
-              if (message && typeof message === 'string' && message.includes('Error:')) {
-                logger.error('Fail to enroll member "%s"',  username, message);
-                throw new Error(message);
+            }).then((enrollment) => {
+              if (enrollment && typeof enrollment === 'string' && enrollment.includes('Error:')) {
+                logger.error('Fail to enroll member "%s"',  username, enrollment);
+                throw new Error(enrollment);
               }
               logger.info('Successfully enrolled member "%s"',  username);
 
               //
-              let member = new User(username);
-              member._enrollmentSecret = enrollmentSecret;
-              return member.setEnrollment(message.key, message.certificate, getMspID(orgID)).then(()=>member);
+              // let member = new User(username);
+              // member._enrollmentSecret = enrollmentSecret;
+              // return member.setEnrollment(enrollment.key, enrollment.certificate, getMspID(orgID)).then(()=>member);
+
+              return client.createUser({
+                  username: username,
+                  mspid: orgID,
+                  cryptoContent: {
+                    privateKeyPEM: enrollment.key.toBytes(),
+                    signedCertPEM: enrollment.certificate
+                  }
+                });
             })
             .then((user) => {
               return client.setUserContext(user);
-            })
-            .catch((err) => {
-              logger.error('Failed to enroll and persist member user "%s". Error: ', username, err && err.message || err);
-              // doesn't need full stack trace here, because we throw an error
-              throw err;
             });
         }
     });
@@ -598,22 +630,23 @@ function _setClientContextFromCA(client, username, orgID) {
   .catch(function(err) {
     logger.error('Failed to get registered user: %s, error:', username, err && err.message || err);
     var errData = _extractEnrolmentError(err.message || err);
-    if(errData.code === 0){ // assume code "0" can be on "already registered" error
+    if(errData.code === 0) { // assume code "0" can be on "already registered" error
       // User is already registered, but we cannot find the private key for it.
       // It seems that we lost access forever
       throw new Error("User key is not found in the storage");
     }
     throw errData;
-  })
-
+  });
+/*
     // HOTFIX
-  .catch(function(/*e*/){
+  .catch(function(e){
     logger.warn('HOTFIX: use admin credentials instead of user "%s"', username);
     return _setClientContextFromFile(client, orgID)
       .then((user) => {
         return client.setUserContext(user);
       });
   });
+*/
 }
 
 
@@ -622,11 +655,12 @@ function _setClientContextFromCA(client, username, orgID) {
  * @todo rename to hasCertificateInArtifacts() or something similar to it
  *
  * @param {string} username
+ * @param {string} orgID
  * @return {boolean}
  */
-function isAdmin(username){
+function isAdmin(username, orgID){
   // TODO: here we should check whether we has certificate for the user in artifacts
-  var adminUser = getCAAdminCredentials();
+  var adminUser = getCAAdminCredentials(orgID);
   return adminUser.username === username;
 }
 
@@ -648,24 +682,28 @@ function _setClientContextFromFile(client, /*username, */ orgID) {
       // admin certificates
       // TODO: explicitly set files
       var adminCerificates = ORGS[orgID].admin;
-      var keyPath = path.join(CONFIG_DIR, adminCerificates.key);
-      var keyPEM = Buffer.from(readAllFiles(keyPath)[0]).toString();
-      var certPath = path.join(CONFIG_DIR, adminCerificates.cert);
-      var certPEM = readAllFiles(certPath)[0].toString();
+      if (adminCerificates) {
+        var keyPath = path.join(CONFIG_DIR, adminCerificates.key);
+        var keyPEM = Buffer.from(readAllFiles(keyPath)[0]).toString();
+        var certPath = path.join(CONFIG_DIR, adminCerificates.cert);
+        var certPEM = readAllFiles(certPath)[0].toString();
 
 
-      // also call 'setUserContext()' inside
-      return client.createUser({
-        username: username,
-        mspid: getMspID(orgID),
-        cryptoContent: {
-          privateKeyPEM: keyPEM,
-          signedCertPEM: certPEM
-        }
-      });
-      //   .then((user) => {
-      //   return client.setUserContext(user);
-      // })
+        // also call 'setUserContext()' inside
+        return client.createUser({
+          username: username,
+          mspid: getMspID(orgID),
+          cryptoContent: {
+            privateKeyPEM: keyPEM,
+            signedCertPEM: certPEM
+          }
+        });
+        //   .then((user) => {
+        //   return client.setUserContext(user);
+        // })
+      } else {
+        return Promise.reject('No user certificate found: ' + username);
+      }
   });
 }
 
