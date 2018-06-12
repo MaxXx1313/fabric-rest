@@ -28,7 +28,6 @@ var config = JSON.parse(fs.readFileSync(configFile).toString());
 ///////
 var hfc = require('fabric-client');
 hfc.setLogger(logger);
-hfc.addConfigFile(ibpConfigFile);
 hfc.addConfigFile(configFile);  // this config needed for lib-fabric
 
 hfc.setConfigSetting('config', config);  // this config needed for client
@@ -39,6 +38,8 @@ hfc.setConfigSetting('config-file', configFile);
 var ibpConfigFile = path.join(configFile, '/../', 'ibp-config.json');
 logger.info('Load config file:', ibpConfigFile);
 if (fs.existsSync(ibpConfigFile)) {
+
+    hfc.addConfigFile(ibpConfigFile);
     var ibpConfig = JSON.parse(fs.readFileSync(ibpConfigFile).toString());
 
     var networkConfig = {
