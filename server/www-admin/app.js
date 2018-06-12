@@ -271,7 +271,7 @@ angular.module('nsd.app',[
 
           // add peers stuff
           Object.keys(orgConfig)
-            .filter(function(key){ return key.startsWith('peer') })
+            .filter(function(key){ return key.includes('peer'); })
             .forEach(function(peerId){
               orgConfig[peerId].id   = peerId;
               orgConfig[peerId].host = getHost(orgConfig[peerId].requests);
@@ -288,7 +288,7 @@ angular.module('nsd.app',[
         var orgConfig = netConfig[orgId]||{};
 
         return Object.keys(orgConfig)
-          .filter(function(key){ return key.startsWith('peer')})
+          .filter(function(key){ return key.includes('peer');})
           .map(function(key){ return orgConfig[key]; });
     }
 
@@ -296,7 +296,7 @@ angular.module('nsd.app',[
       var netConfig = _config['network-config'];
 
       return Object.keys(netConfig)
-        .filter(function(key){ return key != 'orderer'})
+        .filter(function(key){ return key != 'orderer';})
         .map(function(key){ return netConfig[key]; });
     }
 

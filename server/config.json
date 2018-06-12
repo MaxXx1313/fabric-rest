@@ -5,7 +5,7 @@
     "users":[
       {
          "username": "admin",
-         "secret": "07e05c7e20"
+         "secret": "adminpw"
       }
     ],
 
@@ -16,6 +16,6 @@
 
     "user":{
       "username": "admin",
-      "secret": "07e05c7e20"
+      "secret": "adminpw"
     }
 }

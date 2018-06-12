@@ -181,18 +181,18 @@ function _getClientChannel(client, channelID, orgID){
  * @private
  */
 function _setupChannelPeers(channel, orgID) {
-  if(!ORGS[orgID]){
-    throw new Error('No such organisation: '+orgID);
-  }
-	for (let peerID in ORGS[orgID]) {
-    if(!ORGS[orgID].hasOwnProperty(peerID)){ continue; }
-
-		if (peerID.indexOf('peer') === 0) { // starts with 'peer'
-
-      let peer = _setupPeer(orgID, peerID);
-			channel.addPeer(peer);
-		}
-	}
+    if (!ORGS[orgID]) {
+        throw new Error('No such organisation: ' + orgID);
+    }
+    for (let peerID in ORGS[orgID]) {
+        if (!ORGS[orgID].hasOwnProperty(peerID)) {
+            continue;
+        }
+        if (peerID.includes('peer')) {
+            let peer = _setupPeer(orgID, peerID);
+            channel.addPeer(peer);
+        }
+    }
 }
 
 /**
@@ -315,7 +315,7 @@ function _getPeerInfoByUrl(peerUrl, orgID){
       if (!org.hasOwnProperty(prop)) {
         continue;
       }
-      if (prop.indexOf('peer') === 0) {
+      if (prop.includes('peer')) {
         if (org[prop]['requests'].indexOf(peerUrl) >= 0) {
           // found a peer matching the subject url
           return org[prop];
