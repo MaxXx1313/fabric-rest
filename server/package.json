@@ -14,9 +14,11 @@
   },
   "scripts": {
     "start": "node $NODE_DEBUG_OPTION index",
-    "dev"   :"CONFIG_FILE=\"../artifacts-dev/network-config.json\" npm -s start",
-    "preset":"CONFIG_FILE=\"../artifacts-preset/network-config-local.json\" npm -s start",
-    "test":"mocha"
+    "lc": "CONFIG_FILE=\"../artifacts-lc/network-config.json\" node $NODE_DEBUG_OPTION index",
+    "bx": "CONFIG_FILE=\"../artifacts-bx/network-config.json\" node $NODE_DEBUG_OPTION index",
+    "dev": "CONFIG_FILE=\"../artifacts-dev/network-config.json\" node $NODE_DEBUG_OPTION index",
+    "preset": "CONFIG_FILE=\"../artifacts-preset/network-config-local.json\" node $NODE_DEBUG_OPTION index",
+    "test": "mocha"
   },
   "license": "Apache-2.0",
   "dependencies": {
