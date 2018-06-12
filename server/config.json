@@ -4,8 +4,8 @@
     "eventWaitTime":"120000",
     "users":[
       {
-         "username":"admin",
-         "secret":"adminpw"
+         "username": "admin",
+         "secret": "07e05c7e20"
       }
     ],
 
@@ -15,7 +15,7 @@
     "admin_party":true,
 
     "user":{
-      "username":"admin",
-      "secret":"adminpw"
+      "username": "admin",
+      "secret": "07e05c7e20"
     }
 }

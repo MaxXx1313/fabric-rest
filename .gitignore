@@ -1,5 +1,6 @@
 node_modules
 npm-debug.log
+npm-debug.log.*
 .idea
 artifacts/channel/mychannel.block
 fabric-rest-api.iml
@@ -17,5 +18,6 @@ build
 /artifacts/network-config.json
 /artifacts/network-config-dev.json
 /artifacts-dev
+/artifacts-*
 /ledger/docker-compose.yaml
 .storage

@@ -25,12 +25,16 @@ logger.info('Use network config file: %s', configFile);
 
 // fs.accessSync(configFile, fs.constants.R_OK);
 var config = JSON.parse(fs.readFileSync(configFile).toString());
+var configFile2 = path.join(configFile,'/../','csd.json');
+logger.info('Load config file:', configFile2);
 
 
 ///////
 var hfc = require('fabric-client');
 hfc.setLogger(logger);
+hfc.addConfigFile(configFile2);
 hfc.addConfigFile(configFile);  // this config needed for lib-fabric
+
 hfc.setConfigSetting('config', config);  // this config needed for client
 hfc.setConfigSetting('config-dir',  configDir);
 hfc.setConfigSetting('config-file', configFile);

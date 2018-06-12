@@ -34,7 +34,7 @@ var eventhub = null;
 /**
  * @type {string}
  */
-var _username = null;
+var username = null;
 /**
  * @type {string} organisation ID (json key for organisation in  network-config)
  */
@@ -55,20 +55,25 @@ var _wasConnectedAtStartup = false;
 
 /**
  * @param {Array<string>} peersUrls
- * @param {string} username - admin username (or ID from network-config?)
- * @param {string} org organisation ID
+ * @param {string} _username - admin username (or ID from network-config?)
+ * @param {string} _orgID organisation ID
  * @returns {Promise.<TResult>}
  */
-function init(peersUrls, username, org){
+function init(peersUrls, _username, _orgID) {
+  logger.debug(util.format('Initialize event hub as %s@%s\n', _username, _orgID, peersUrls));
   peers = peersUrls;
-  _username = username;
-  orgID = org;
+  username = _username;
+  orgID = _orgID;
 
-  initPromise = helper.getClientUser(username, org)
+  initPromise = helper.getClientUser(username, orgID)
     .then((user) => {
       // TODO: print organisation role from certificate?
       logger.debug(util.format('Authorized as %s@%s\n', user._name, orgID));
       return user;
+    })
+    .catch( e => {
+      logger.error(e);
+      process.exit(1);
     });
   // TODO: add promise catcher
   return initPromise;
@@ -100,7 +105,7 @@ function listen(){
       logger.info('connecting to %s', peer);
 
       // set the transaction listener
-      return helper.newEventHub(peer, _username, orgID)
+      return helper.newEventHub(peer, username, orgID)
         .then(function(_eventhub){
           eventhub = _eventhub;
           eventhub._ep._request_timeout = 5000; // TODO: temp solution, move timeout to config
