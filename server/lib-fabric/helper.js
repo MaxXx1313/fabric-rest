@@ -65,12 +65,10 @@ function getCAService(orgID){
     let cryptoSuite = hfc.newCryptoSuite();
     cryptoSuite.setCryptoKeyStore(hfc.newCryptoKeyStore({path: getKeyStoreForOrg(username, orgID)}));
 
-    const allPeers = hfc.getConfigSetting("peers");
-
     // TODO: make correct TLS extraction (use "organizations" values)
-    const certData = allPeers[ Object.keys(allPeers).filter(name => name.includes(orgID))[0] ].tlsCACerts.pem;
+    //const certData = allPeers[ Object.keys(allPeers).filter(name => name.includes(orgID))[0] ].tlsCACerts.pem;
     const	tlsOptions = {
-      trustedRoots: [certData],
+      trustedRoots: [hfc.getConfigSetting("tlsCACerts")],
       verify: true
       // trustServerCertificate: true,
       // sslProvider: 'openSSL',
@@ -195,6 +193,15 @@ function _setupChannelPeers(channel, orgID) {
     }
 }
 
+function getPeerTlsCaCert(org, peer) {
+    return ORGS[org][peer]['tlsCACerts'] || Buffer.from(fs.readFileSync(path.join(CONFIG_DIR, ORGS[org][peer]['tls_cacerts']))).toString();
+}
+
+function getOrdererTlsCaCerts() {
+    return ORGS['orderer']['tlsCACerts'] || Buffer.from(fs.readFileSync(path.join(CONFIG_DIR, ORGS['orderer']['tls_cacerts']))).toString();
+}
+
+
 /**
  * similar to {@link newPeer}
  *
@@ -203,22 +210,15 @@ function _setupChannelPeers(channel, orgID) {
  * @returns {Peer}
  */
 function _setupPeer(orgID, peerID){
-  let data = fs.readFileSync(path.join(CONFIG_DIR, ORGS[orgID][peerID]['tls_cacerts']));
-  let peer = new Peer( ORGS[orgID][peerID].requests, {
-      pem: Buffer.from(data).toString()
-  });
-  return peer;
+    return new Peer( ORGS[orgID][peerID].requests, {pem: getPeerTlsCaCert(orgID, peerID)});
 }
 
 /**
  * @returns {Orderer}
  */
 function newOrderer() {
-	var caRootsPath = ORGS['orderer'].tls_cacerts;
-	let data = fs.readFileSync(path.join(CONFIG_DIR, caRootsPath));
-	let caroots = Buffer.from(data).toString();
-	return new Orderer(ORGS.orderer.url, {
-		'pem': caroots
+    return new Orderer(ORGS.orderer.url, {
+		'pem': getOrdererTlsCaCerts()
 	});
 }
 
@@ -318,7 +318,7 @@ function _getPeerInfoByUrl(peerUrl, orgID){
       if (prop.includes('peer')) {
         if (org[prop]['requests'].indexOf(peerUrl) >= 0) {
           // found a peer matching the subject url
-          return org[prop];
+            return {org: org, orgID:key, peerID: prop};
         }
       }
     }
@@ -337,9 +337,8 @@ function newPeer(peerUrl) {
     throw new Error('Failed to find a peer matching the url: ' + peerUrl);
   }
 
-  let tls_data = fs.readFileSync(path.join(CONFIG_DIR, peerInfo['tls_cacerts']));
   let peer = new Peer('grpcs://' + peerUrl, {
-    pem: Buffer.from(tls_data).toString()
+    pem: getPeerTlsCaCert(peerInfo.orgID, peerInfo.peerID)
   });
   return peer;
 
@@ -361,13 +360,9 @@ function newEventHub(peerUrl, username, orgID) {
       if (!peerInfo) {
         throw new Error('Failed to find a peer matching the url: ' + peerUrl);
       }
-      let certFile = fs.readFileSync(path.join(CONFIG_DIR, peerInfo['tls_cacerts']));
-      let data = Buffer.from( certFile ).toString();
-
-      //
       let eventHub = new EventHub(client);
-      eventHub.setPeerAddr(peerInfo['events'], {
-        pem: Buffer.from(data).toString()
+      eventHub.setPeerAddr(peerInfo.org[peerInfo.peerID]['events'], {
+          pem: getPeerTlsCaCert(peerInfo.orgID, peerInfo.peerID)
       });
       return eventHub;
     });
@@ -433,7 +428,7 @@ function getCAClientForOrg(orgID) {
   }
   // caching
   if(!caClients[orgID]){
-    var adminUser = getCAAdminCredentials(orgID);
+    var adminUser = getCAAdminCredentials();
     var client = _newClient(adminUser.username, orgID);
     caClients[orgID] = _setClientCAAdminContext(client, orgID)
       .then(()=>client)
@@ -474,26 +469,11 @@ var getMspID = function(org) {
  * @returns {{username:string, password: string}}
  * @ param {string} orgID
  */
-function getCAAdminCredentials(orgID){
-
-
-  let certificateAuthorities = hfc.getConfigSetting('certificateAuthorities');
-  let config1user;
-  try{
-    config1user = certificateAuthorities[orgID+'-ca'].registrar[0];
-  }catch(e){}
-
-  if (!config1user) {
-    var users = config.users;
-    config1user = {
-      enrollId:     users[0].username,
-      enrollSecret: users[0].secret
-    };
-  }
-
+function getCAAdminCredentials(){
+  let enrollmentConfig = hfc.getConfigSetting('enrollmentConfig');
   return {
-    username: config1user.enrollId,
-    password: config1user.enrollSecret
+    username: enrollmentConfig.enrollId,
+    password: enrollmentConfig.enrollSecret
   };
 }
 
@@ -771,3 +751,4 @@ exports.newEventHub = newEventHub;
 
 exports.getPeerAddressByName = getPeerAddressByName;
 exports._extractEnrolmentError = _extractEnrolmentError;
+exports.getTlsCaCert = getPeerTlsCaCert;

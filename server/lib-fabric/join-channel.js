@@ -78,11 +78,10 @@ var joinChannel = function(peers, channelID, username, org) {
 			for (let key in ORGS[org]) {
 				if (ORGS[org].hasOwnProperty(key)) {
 					if (key.includes('peer')) {
-						let data = fs.readFileSync(path.join(CONFIG_DIR, ORGS[org][key]['tls_cacerts']));
-						let eh = client.newEventHub();
+                        let eh = client.newEventHub();
 						eh.setPeerAddr(ORGS[org][key].events, {
-							pem: Buffer.from(data).toString(),
-							'ssl-target-name-override': ORGS[org][key]['server-hostname']
+							pem: helper.getTlsCaCert(org, key)
+							// ,'ssl-target-name-override': ORGS[org][key]['server-hostname']
 						});
 						eh.connect();
 						eventhubs.push(eh);
