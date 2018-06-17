@@ -11,7 +11,7 @@
       </select>
     <!--</div>-->
     <!--
-    <input ng-if="!ctl.channelsListAvailable" type="text" class="form-control" id="channel" placeholder="Contract ID" ng-model="ctl.selectedChannel.channel_id" >
+    <input ng-if="!ctl.channelsListAvailable" type="text" class="form-control" id="channel" placeholder="Channel ID" ng-model="ctl.selectedChannel.channel_id" >
     -->
   </div>
 
@@ -20,10 +20,10 @@
     <div ng-if="ctl.chaincodesListAvailable">
       <select ng-model="ctl.selectedCc" material-select watch
               ng-options="o.name+' ('+o.version+')' for o in ctl.chaincodes"
-              placeholder="Contract ID" >
+              placeholder="Chaincode ID" >
       </select>
     </div>
-    <input ng-if="!ctl.chaincodesListAvailable" type="text" class="form-control" id="cc" placeholder="Contract ID" ng-model="ctl.selectedCc.name" >
+    <input ng-if="!ctl.chaincodesListAvailable" type="text" class="form-control" id="cc" placeholder="Chaincode ID" ng-model="ctl.selectedCc.name" >
   </div>
 
   <div class="form-group">
