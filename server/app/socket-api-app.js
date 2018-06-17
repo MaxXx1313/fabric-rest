@@ -12,7 +12,10 @@ var networkConfig = hfc.getConfigSetting('network-config');
 
 // config
 var config = require('../config.json');
-const USERNAME = config.user.username;
+
+var hfc   = require('../lib-fabric/hfc');
+const ORG = hfc.getConfigSetting('org');
+const USERNAME = hfc.getConfigSetting('enrollmentConfig').enrollId;
 
 module.exports = {
   init: init
@@ -20,10 +23,9 @@ module.exports = {
 
 /**
  * @param {Server} io
- * @param {object} options
+ * @ param {object} options
  */
-function init(io, options){
-  var ORG = options.org;
+function init(io/*, options*/){
 
   var orgConfig = networkConfig[ORG];
   if(!orgConfig){

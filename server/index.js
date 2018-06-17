@@ -23,7 +23,6 @@ var socketApp     = require('./app/socket-api-app');
 var autoloadMiddleware = require('./lib/express-middleware-autoload');
 
 // config
-const ORG      = process.env.ORG;
 const PORT     = process.env.PORT || 4000;
 const WEB_DIR  = process.env.WEB_DIR || 'www';
 const M_C_F    = process.env.MIDDLEWARE_CONFIG_FILE || './middleware/map.json';
@@ -55,7 +54,7 @@ app.use(apiApp);
 var server = http.createServer(app);
 
 var io = new SocketServer(server, socketOptions);
-socketApp.init(io, {org:ORG});
+socketApp.init(io);
 
 server.listen(PORT, function() {
 	logger.info('****************** SERVER STARTED ************************');

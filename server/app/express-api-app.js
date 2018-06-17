@@ -36,7 +36,7 @@ var query         = require('../lib-fabric/query.js');
 var config = require('../config.json');
 var packageInfo = require('../package.json');
 
-const ORG = process.env.ORG || null;
+const ORG = hfc.getConfigSetting('org');
 const USERNAME = config.user.username;
 const LEDGER_CONFIG_DIR  = '../artifacts/channel/';
 const GENESIS_BLOCK_FILE = 'genesis.block';
@@ -44,10 +44,6 @@ const GENESIS_BLOCK_FILE = 'genesis.block';
 logger.info('**************    API SERVER %s  ******************', packageInfo.version);
 logger.info('Admin     : ' + USERNAME);
 logger.info('Org name  : ' + ORG);
-
-if(!ORG){
-  throw new Error('ORG must be set in environment');
-}
 
 
 var app = express(); // root app
