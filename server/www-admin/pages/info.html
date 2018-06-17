@@ -6,7 +6,7 @@
     {{::org.name}}
   </blockquote>
   <ul>
-    <li ng-repeat="peer in ctl.getPeers(org.id)">{{::peer['server-hostname']}}</li>
+    <li ng-repeat="peer in ctl.getPeers(org.id)">{{::peer['host']}}</li>
   </ul>
 </div>
 
