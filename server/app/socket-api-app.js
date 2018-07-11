@@ -17,6 +17,7 @@ var hfc   = require('../lib-fabric/hfc');
 const ORG = hfc.getConfigSetting('org');
 const USERNAME = hfc.getConfigSetting('enrollmentConfig').enrollId;
 
+
 module.exports = {
   init: init
 };
@@ -24,14 +25,16 @@ module.exports = {
 /**
  * @param {Server} io
  * @ param {object} options
+ * @return void
  */
 function init(io/*, options*/){
 
   var orgConfig = networkConfig[ORG];
   if(!orgConfig){
-    throw new Error('No such organisation in config: '+ORG);
+    throw new Error('No such organisation in config: ' + ORG);
   }
 
+  // get any peer on the current organisation
   var PEERS = Object.keys(orgConfig).filter(k=>k.includes('peer'));
   var peersAddress = PEERS.map(p=>tools.getHost(networkConfig[ORG][p].requests));
 
@@ -43,13 +46,11 @@ function init(io/*, options*/){
     });
   });
 
-  // emit block appearance
-  var lastBlock = null;
   //TODO: listen all peers, remove duplicates
-  peerListener.init([peersAddress[0]], USERNAME, ORG);
+  peerListener.init([peersAddress[0]], USERNAME, ORG); // TODO: wait for the operation finished
+
   peerListener.registerBlockEvent(function(block){
     // emit globally
-    lastBlock = block;
     io.emit('chainblock', block);
   });
 
@@ -62,9 +63,6 @@ function init(io/*, options*/){
 
   io.on('connection', function(socket){
     socket.emit('status', peerListener.isConnected() ? 'connected':'disconnected' );
-    // if(lastBlock){
-    //   socket.emit('chainblock', lastBlock);
-    // }
   });
 
 

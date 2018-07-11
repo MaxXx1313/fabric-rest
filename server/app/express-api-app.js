@@ -348,6 +348,7 @@ app.get('/config', function(req, res) {
 
 
 //Query hyperledger genesis block
+// TODO: it's not clear whether it work properly or not
 app.get('/genesis', function(req, res) {
   logger.debug('================ GET GENESIS BLOCK ======================');
 
@@ -394,6 +395,7 @@ app.get('/channels/:channelName', function(req, res) {
 
 
 //Query channel binary configuration
+// TODO: it's not clear whether it work properly or not
 app.get('/channels/:channelName/config', function(req, res) {
   logger.debug('================ GET CHANNEL BINARY CONFIG ======================');
   logger.debug('channelName : ' + req.params.channelName);

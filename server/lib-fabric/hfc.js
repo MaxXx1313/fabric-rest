@@ -1,20 +1,21 @@
-/*
+/**
 
  */
 "use strict";
-const RELPATH = '/../'; // relative path to server root. Change it during file movement
+const RELPATH = '/../'; // relative path to server root. Change it whne file is moved
 const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
 var hfc = require('fabric-client');
 
 var log4js = require('log4js');
-
 var logger = log4js.getLogger('fabric-client');
-
 logger.setLevel('INFO');
 hfc.setLogger(logger);
 
+/**
+ * Current organisation
+ */
 const ORG = process.env.ORG || null;
 
 hfc.setConfigSetting('org', ORG);
@@ -33,6 +34,8 @@ var configDir = path.dirname(configFile);
 hfc.setConfigSetting('config-dir', configDir);
 hfc.setConfigSetting('config-file', configFile);
 
+
+// Load network-config.json
 if (!fs.existsSync(configFile)) {
     logger.info('No config file:', configFile);
 } else {
@@ -42,6 +45,7 @@ if (!fs.existsSync(configFile)) {
     hfc.setConfigSetting('config', config);  // this config needed for client
 }
 
+// Load ibp-config.json
 var ibpConfigFile = path.join(configFile, '/../', 'ibp-config.json');
 if (!fs.existsSync(ibpConfigFile)) {
     logger.info('No config file:', ibpConfigFile);
