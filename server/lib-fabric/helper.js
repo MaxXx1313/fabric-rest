@@ -611,13 +611,20 @@ function _enroll(client, username, orgID) {
     var enrollmentSecret = null;
     return getCAAdminUser(orgID)
       .then(function(adminUserObj) {
+        var adminUser = getCAAdminCredentials();
+
+        if (adminUser.username === username) {
+          // user must be registered already. skip registration
+          return adminUser.password;
+        }
+
         return caService.register({
           enrollmentID: username,
           affiliation: orgID
         }, adminUserObj);
       }).then((secret) => {
         enrollmentSecret = secret;
-        logger.debug('Successfully registered member "%s":',  username, enrollmentSecret);
+        logger.debug('Successfully registered member "%s":',  username, enrollmentSecret.replace(/./g, '*'));
         return caService.enroll({
           enrollmentID: username,
           enrollmentSecret: secret
