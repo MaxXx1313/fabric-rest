@@ -244,7 +244,9 @@ function readAllFiles(dir) {
  * @returns {string}
  */
 function getKeyStoreForOrg(username, orgID) {
-	return path.join(config.keyValueStore , username + '_' + orgID);
+	const userKeyStorage = path.join(CONFIG_DIR, config.keyValueStore , username + '_' + orgID);
+  logger.debug(`Private key storage for user ${username} is: ${userKeyStorage}`);
+  return userKeyStorage;
 }
 
 

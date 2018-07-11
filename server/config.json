@@ -1,6 +1,6 @@
 {
     "GOPATH":"",
-    "keyValueStore":"./.storage/fabric-client-kvs/",
+    "keyValueStore":"./.fabric-client-kvs/",
     "eventWaitTime":"120000",
     "users":[
       {
