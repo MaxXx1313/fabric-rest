@@ -7,6 +7,7 @@ Environment
 -----------
 
 * `PORT` - api/web interface port (default is `4000`)
+* `MAX_ATTEMPTS` - number of attepmpts to reconnect to event hub during start-up (default is `3`). If it was connected at least one time, this limit doesn't matter.
 * `ORG` - organization id. No default value, you have to set it explicitly
 * `CONFIG_FILE` - ledger config file (default is `../artifacts/network-config.json`)
 * `WEB_DIR` - location of web application (default is `www`)
@@ -36,8 +37,8 @@ ORG=org1 npm run dev
 Known issues
 ------------
 
-* peer ID should be started with 'peer' word (specified in `network-config.json`).  
-  
+* peer ID should be started with 'peer' word (specified in `network-config.json`).
+
   RIGHT:
 ```
    ...

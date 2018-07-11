@@ -61,6 +61,7 @@ function init(io/*, options*/){
 
   peerListener.listen();
 
+  // emit current status for the new clients
   io.on('connection', function(socket){
     socket.emit('status', peerListener.isConnected() ? 'connected':'disconnected' );
   });

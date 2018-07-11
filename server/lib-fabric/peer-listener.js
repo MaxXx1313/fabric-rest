@@ -53,11 +53,20 @@ var initPromise = null;
  */
 var _wasConnectedAtStartup = false;
 
+
+/**
+ * @type {number}
+ */
+var _startupConnectionAttempts = 0;
+
+
+const MAX_ATTEMPTS = process.env.MAX_ATTEMPTS || 3;
+
 /**
  * @param {Array<string>} peersUrls
  * @param {string} _username - admin username (or ID from network-config?)
  * @param {string} _orgID organisation ID
- * @returns {Promise.<TResult>}
+ * @returns {Promise<any>}
  */
 function init(peersUrls, _username, _orgID) {
   logger.debug(util.format('Initialize event hub as %s@%s\n', _username, _orgID, peersUrls));
@@ -100,9 +109,9 @@ function listen(){
     _connect();
 
     //
-    function _connect(){
+    function _connect() {
       var peer = rotatePeers();
-      logger.info('connecting to %s', peer);
+      logger.info('connecting to %s (attempt no.%s)', peer, _startupConnectionAttempts+1);
 
       // set the transaction listener
       return helper.newEventHub(peer, username, orgID)
@@ -153,7 +162,11 @@ function listen(){
       }
 
       if(!eventhub._connected && !_wasConnectedAtStartup){
-        throw e;
+        _startupConnectionAttempts++;
+
+        if (_startupConnectionAttempts >= MAX_ATTEMPTS) {
+          throw e;
+        }
       }
 
       logger.trace('Set reconnection timer');
