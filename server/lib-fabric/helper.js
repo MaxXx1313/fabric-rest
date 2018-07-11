@@ -87,9 +87,9 @@ function getCAService(orgID){
  *
  * Setup contains two step:
  *  1. create client object
- *  2. set client context = crypto keys (some sort of authorization).
+ *  2. set client context = crypto keys
  *     It will enroll the user if no private key loaded.
- *     When private key is found, it doesn't actually send any request on this step.
+ *     When private key is found, it doesn't actually send any request to CA on this step.
  *
  * @param {string} username
  * @param {string} orgID
@@ -97,17 +97,10 @@ function getCAService(orgID){
  */
 function _initClientForOrg(username, orgID){
 
-  var client = _newClient(username, orgID);
   // init client key store and context
-  var p;
-  // TODO: replace 'isAdmin' with 'hasKeyFile' with a check of private key certificate
-  if( false && isAdmin(username, orgID) ){
-    // p = _setClientAdminContext(client, orgID);
-    p = _setClientContextFromFile(client, orgID);
-  } else {
-    p = _setClientContextFromCA(client, username, orgID);
-  }
-  return p.then(()=>client);
+  var client = _newClient(username, orgID);
+  return _setClientContextFromCA(client, username, orgID)
+    .then(()=>client);
 }
 
 /**
@@ -551,15 +544,16 @@ function _setClientCAAdminContext(client, orgID) {
  */
 function _setClientContextFromCA(client, username, orgID) {
 
-	return hfc.newDefaultKeyValueStore({
-		path: getKeyStoreForOrg(username, orgID)
-	}).then((store) => {
-		client.setStateStore(store);
-		// clearing the user context before switching
+  return hfc.newDefaultKeyValueStore({
+    path: getKeyStoreForOrg(username, orgID)
+  }).then((store) => {
+    client.setStateStore(store);
+    // clearing the user context before switching
     // Actually we don't need to clean it, because we cache client instance with user, so there might be only one user here
-		client._userContext = null;
+    client._userContext = null;
 
-		return client.getUserContext(username, true) // MAY UPDATE _userContext
+    // try to load user context from user state storage
+    return client.getUserContext(username, true) // MAY UPDATE _userContext
       .then((user) => {
         if (user && user.isEnrolled()) {
           logger.info('Successfully loaded member "%s" from persistence', username);
@@ -567,48 +561,13 @@ function _setClientContextFromCA(client, username, orgID) {
         } else {
           logger.info('No member "%s" in persistence', username);
 
-          let caService = getCAService(orgID);
-          var enrollmentSecret = null;
-          return getCAAdminUser(orgID)
-            .then(function(adminUserObj) {
-              return caService.register({
-                enrollmentID: username,
-                affiliation: orgID
-              }, adminUserObj);
-            }).then((secret) => {
-              enrollmentSecret = secret;
-              logger.debug('Successfully registered member "%s":',  username, enrollmentSecret);
-              return caService.enroll({
-                enrollmentID: username,
-                enrollmentSecret: secret
-              });
-            }).then((enrollment) => {
-              if (enrollment && typeof enrollment === 'string' && enrollment.includes('Error:')) {
-                logger.error('Fail to enroll member "%s"',  username, enrollment);
-                throw new Error(enrollment);
-              }
-              logger.info('Successfully enrolled member "%s"',  username);
+          // TODO: here we can call _setClientContextFromFile()
 
-              //
-              // let member = new User(username);
-              // member._enrollmentSecret = enrollmentSecret;
-              // return member.setEnrollment(enrollment.key, enrollment.certificate, getMspID(orgID)).then(()=>member);
-
-              return client.createUser({
-                  username: username,
-                  mspid: orgID,
-                  cryptoContent: {
-                    privateKeyPEM: enrollment.key.toBytes(),
-                    signedCertPEM: enrollment.certificate
-                  }
-                });
-            })
-            .then((user) => {
-              return client.setUserContext(user);
-            });
+          // this is actually enrolling. We need to move other stuff to initialisation
+          return _enroll(client, username, orgID);
         }
     });
-	})
+  })
   .catch(function(err) {
     logger.error('Failed to get registered user: %s, error:', username, err && err.message || err);
     var errData = _extractEnrolmentError(err.message || err);
@@ -629,6 +588,54 @@ function _setClientContextFromCA(client, username, orgID) {
       });
   });
 */
+}
+
+
+/**
+ * Enroll new user in CA
+ * @return Promise<any>
+ */
+function _enroll(client, username, orgID) {
+
+    let caService = getCAService(orgID);
+    var enrollmentSecret = null;
+    return getCAAdminUser(orgID)
+      .then(function(adminUserObj) {
+        return caService.register({
+          enrollmentID: username,
+          affiliation: orgID
+        }, adminUserObj);
+      }).then((secret) => {
+        enrollmentSecret = secret;
+        logger.debug('Successfully registered member "%s":',  username, enrollmentSecret);
+        return caService.enroll({
+          enrollmentID: username,
+          enrollmentSecret: secret
+        });
+      }).then((enrollment) => {
+        if (enrollment && typeof enrollment === 'string' && enrollment.includes('Error:')) {
+          logger.error('Fail to enroll member "%s"',  username, enrollment);
+          throw new Error(enrollment);
+        }
+        logger.info('Successfully enrolled member "%s"',  username);
+
+        //
+        // let member = new User(username);
+        // member._enrollmentSecret = enrollmentSecret;
+        // return member.setEnrollment(enrollment.key, enrollment.certificate, getMspID(orgID)).then(()=>member);
+
+        return client.createUser({
+            username: username,
+            mspid: orgID,
+            cryptoContent: {
+              privateKeyPEM: enrollment.key.toBytes(),
+              signedCertPEM: enrollment.certificate
+            }
+          });
+      })
+      .then((user) => {
+        return client.setUserContext(user);
+      });
 }
 
 
@@ -694,7 +701,8 @@ function _setClientContextFromFile(client, /*username, */ orgID) {
 /**
  * @param {string} errorString
  * @return {{code:number|null, message:string}}
- * @example Error: fabric-ca request register failed with errors [[{"code":0,"message":"Identity 'admin' is already registered"}]]
+ * @example
+ *   Error: fabric-ca request register failed with errors [[{"code":0,"message":"Identity 'admin' is already registered"}]]
  * @private
  */
 function _extractEnrolmentError(errorString){
