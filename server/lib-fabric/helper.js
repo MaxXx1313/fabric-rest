@@ -427,7 +427,10 @@ function getCAClientForOrg(orgID) {
     var client = _newClient(adminUser.username, orgID);
     caClients[orgID] = _setClientCAAdminContext(client, orgID)
       .then(()=>client)
-      .catch(() => { delete caClients[orgID]; });
+      .catch(() => {
+        delete caClients[orgID];
+        throw e;
+      });
   }
   return caClients[orgID];
 
@@ -502,6 +505,7 @@ function _setClientCAAdminContext(client, orgID) {
         } else {
           logger.info('No admin "%s" in persistence', username);
 
+          logger.info('Try to enroll admin user "%s"',  username);
           let caService = getCAService(orgID);
           // need to enroll it with CA server
           return caService.enroll({
@@ -511,9 +515,15 @@ function _setClientCAAdminContext(client, orgID) {
               logger.info('Successfully enrolled admin user "%s"',  username);
 
               //
-              let member = new User(username);
-              member.setCryptoSuite(client.getCryptoSuite());
-              return member.setEnrollment(enrollment.key, enrollment.certificate, getMspID(orgID)).then(()=>member);
+              return client.createUser({
+                username: username,
+                mspid: orgID,
+                cryptoContent: {
+                  privateKeyPEM: enrollment.key.toBytes(),
+                  signedCertPEM: enrollment.certificate
+                }
+              });
+
             }).then((user) => {
               return client.setUserContext(user);
             }).catch((err) => {
