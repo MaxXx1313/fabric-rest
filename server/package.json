@@ -1,7 +1,7 @@
 {
   "name": "fabric-rest",
-  "version": "0.12.1",
-  "description": "API server for Hyperledger Fabric 1.0",
+  "version": "0.12.2",
+  "description": "API server for Hyperledger Fabric 1.1",
   "main": "app/index.js",
   "keywords": [
     "fabric-client sample app",
@@ -11,6 +11,10 @@
   "engines": {
     "node": ">=6.9.5",
     "npm": ">=3.10.10"
+  },
+  "repository" : {
+    "type": "git",
+    "url": "https://github.com/MaxXx1313/fabric-rest.git"
   },
   "scripts": {
     "start": "node $NODE_DEBUG_OPTION index",
