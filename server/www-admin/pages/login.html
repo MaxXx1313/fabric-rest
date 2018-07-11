@@ -9,7 +9,11 @@
   </div>
 
   <div class="form-group">
-    <button class="btn btn-primary" type="button" ng-click="ctl.signUp(user)" ng-disabled="login_form.$invalid">Sign up</button>
+    <button ng-if="!ctl.inProgress" class="btn btn-primary" type="button" ng-click="ctl.signUp(user)" ng-disabled="login_form.$invalid || ctl.inProgress">Sign up</button>
+
+    <div ng-if="ctl.inProgress" class="progress">
+      <div class="indeterminate"></div>
+    </div>
   </div>
 
 </form>
