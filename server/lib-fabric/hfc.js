@@ -39,10 +39,7 @@ hfc.setConfigSetting('config-file', configFile);
 if (!fs.existsSync(configFile)) {
     logger.info('No config file:', configFile);
 } else {
-    logger.info('Load config file:', configFile);
-    var config = JSON.parse(fs.readFileSync(configFile).toString());
-    hfc.addConfigFile(configFile);  // this config needed for lib-fabric
-    hfc.setConfigSetting('config', config);  // this config needed for client
+    loadConfigFile(configFile);
 }
 
 // Load ibp-config.json
@@ -50,7 +47,151 @@ var ibpConfigFile = path.join(configFile, '/../', 'ibp-config.json');
 if (!fs.existsSync(ibpConfigFile)) {
     logger.info('No config file:', ibpConfigFile);
 } else {
-    logger.info('Load config file:', ibpConfigFile);
+    loadConfigFile(ibpConfigFile);
+}
+
+
+if (!hfc.getConfigSetting('org')) {
+  throw new Error('ORG must be set in environment');
+}
+
+// you can always get config:
+// var ORGS = hfc.getConfigSetting('network-config');
+// var CONFIG_DIR = hfc.getConfigSetting('config-dir');
+
+module.exports = hfc;
+
+/**
+ * Load config file.
+ * Detects proper config format (NetworkConfig or IBPConfig)
+ */
+function loadConfigFile(configFile) {
+    var config = JSON.parse(fs.readFileSync(configFile).toString());
+
+    if (config["network-config"]) {
+        loadNetworkConfigObject(configFile);
+    } else {
+        loadIBPConfigObject(configFile);
+    }
+}
+
+/**
+ * @typedef {object} NetworkConfig
+ *
+ * @property {object} network-config
+ *
+ * @property {object} network-config.orderer
+ * @property {object} network-config.orderer.url
+ * @property {object} network-config.orderer.tls_cacerts - file location
+ *
+ * @property {object} network-config.<orgId>
+ * @property {object} network-config.<orgId>.name
+ * @property {object} network-config.<orgId>.mspid
+ * @property {object} network-config.<orgId>.ca - ca url
+ *
+ * @property {object} network-config.<orgId>.peer<peerNum>
+ * @property {object} network-config.<orgId>.peer<peerNum>.requests
+ * @property {object} network-config.<orgId>.peer<peerNum>.events
+ * @property {object} network-config.<orgId>.peer<peerNum>.tls_cacerts - file location
+
+ * @property {object} [network-config.<orgId>.admin]
+ * @property {object} [network-config.<orgId>.admin].key - file location
+ * @property {object} [network-config.<orgId>.admin].cert - file location
+ */
+
+
+/**
+ * @typedef {object} IBPConfig
+ *
+ * @property {string}  name
+ * @property {string}  description
+ * @property {string}  x-networkId
+ * @property {string}  x-fabricVersion
+ * @property {string}  version
+ * @property {string}  x-type
+
+ * @property {object}  client - client info (TODO)
+ * @property {object}  channels - (TODO)
+ *
+ * @property {object}                   organizations - organisations info
+ * @property {string}                   organizations.<orgId>.mspid
+ * @property {Array<string>}            organizations.<orgId>.peers - peers id
+ * @property {Array<string>}            organizations.<orgId>.certificateAuthorities - CA id
+ * @property {PersonalCertifacteInfo}   organizations.<orgId>.signedCert
+ * @property {PersonalCertifacteInfo}   organizations.<orgId>.x-uploadedSignedCerts
+ *
+ * @property {object}           orderers - orderers info
+ * @property {string}           orderers.<ordererId>.url
+ * @property {object}           orderers.<ordererId>.grpcOptions
+ * @property {CACertifacteInfo} orderers.<ordererId>.tlsCACerts
+ *
+ * @property {object}           peers - peers info
+ * @property {string}           peers.<peerId>.url
+ * @property {string}           peers.<peerId>.eventUrl
+ * @property {object}           peers.<peerId>.grpcOptions
+ * @property {CACertifacteInfo} peers.<peerId>.tlsCACerts
+ * @property {string}           peers.<peerId>.x-mspid
+ * @property {string}           peers.<peerId>.x-ledgerDbType
+ * @property {object}           [peers.<peerId>.x-installed-chaincode]
+ * @property {ChaincodeInfo}    peers.<peerId>.x-installed-chaincode.<chaincodeId>
+ *
+ * @property {object}               certificateAuthorities - ca info
+ * @property {string}               certificateAuthorities.<caId>.url
+ * @property {object}               certificateAuthorities.<caId>.httpOptions
+ * @property {CACertifacteInfo}     certificateAuthorities.<caId>.tlsCACerts
+ * @property {Array<RegistrarInfo>} certificateAuthorities.<caId>.registrar
+ * @property {caName}               certificateAuthorities.<caId>.caName
+ * @property {caName}               certificateAuthorities.<caId>.x-mspid
+ */
+
+
+
+
+/**
+ * @typedef {object} CACertifacteInfo
+ * @property {string}  pem - file content
+ */
+
+/**
+ * @typedef {object} PersonalCertifacteInfo
+ * @property {string}  pem - file content
+ * @property {string}  x-name
+ */
+
+
+/**
+ * @typedef {object} ChaincodeInfo
+ * @property {string}  version
+ * @property {string}  path
+ */
+
+/**
+ * @typedef {object} RegistrarInfo
+ * @property {string}  enrollId
+ * @property {string}  enrollSecret - password
+ */
+
+/**
+ * Load NetworkConfig
+ * @param {string} configFile - config file location
+ */
+function loadNetworkConfigObject(configFile) {
+    logger.info('Load NetworkConfig file:', configFile);
+
+    const networkConfig = JSON.parse(fs.readFileSync(configFile).toString());
+    hfc.addConfigFile(configFile);  // this config needed for lib-fabric
+    hfc.setConfigSetting('config', networkConfig);  // this config needed for client
+}
+
+
+
+/**
+ * Load IBPConfig and converts it to NetworkConfig (for compartibility)
+ * @param {IBPConfig} ibpConfig
+ * @param {string} _configFile - config file location
+ */
+function loadIBPConfigObject(ibpConfigFile) {
+    logger.info('Load IBPConfig file:', ibpConfigFile);
 
     var ibpConfig = JSON.parse(fs.readFileSync(ibpConfigFile).toString());
 
@@ -95,14 +236,3 @@ if (!fs.existsSync(ibpConfigFile)) {
     hfc.setConfigSetting('config', {"network-config": networkConfig});
     hfc.setConfigSetting('network-config', networkConfig);
 }
-
-
-if (!hfc.getConfigSetting('org')) {
-  throw new Error('ORG must be set in environment');
-}
-
-// you can always get config:
-// var ORGS = hfc.getConfigSetting('network-config');
-// var CONFIG_DIR = hfc.getConfigSetting('config-dir');
-
-module.exports = hfc;
