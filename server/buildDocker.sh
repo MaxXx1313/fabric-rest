@@ -14,17 +14,18 @@ else
   VERSION=$(cat package.json |grep '"version"'|cut -d':' -f2- | grep -oP '".*"'|sed s/\"//g);
 fi;
 
-TAG="maxxx1313/fabric-rest:$VERSION-ibp"
+TAGBASE="maxxx1313/fabric-rest"
+TAG="$TAGBASE:$VERSION-ibp"
 echo "Building $TAG"
 
 docker build -t "$TAG" --label version="$VERSION" .
 
-docker tag "$TAG" "ibp"
+docker tag "$TAG" "$TAGBASE:ibp"
 
 echo "Done!"
 echo
 echo "Push images:"
 echo "  docker push $TAG"
-echo "  docker push ibp"
+echo "  docker push $TAGBASE:ibp"
 
 
