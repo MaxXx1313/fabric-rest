@@ -471,7 +471,8 @@ function getCAAdminCredentials(){
   let enrollmentConfig = hfc.getConfigSetting('enrollmentConfig');
   return {
     username: enrollmentConfig.enrollId,
-    password: enrollmentConfig.enrollSecret
+    password: enrollmentConfig.enrollSecret,
+    affiliation: (enrollmentConfig["x-affiliations"] || [])[0]
   };
 }
 
@@ -485,8 +486,8 @@ function getCAAdminCredentials(){
  */
 function _setClientCAAdminContext(client, orgID) {
 	var adminUser = getCAAdminCredentials(orgID);
-  var username = adminUser.username;
-  var password = adminUser.password;
+        var username = adminUser.username;
+        var password = adminUser.password;
 
 	return hfc.newDefaultKeyValueStore({
 		path: getKeyStoreForOrg(username, orgID)
@@ -607,6 +608,9 @@ function _setClientContextFromCA(client, username, orgID) {
  */
 function _enroll(client, username, orgID) {
 
+    var adminUser = getCAAdminCredentials(orgID);
+    var affiliation = adminUser.affiliation || orgID;
+
     let caService = getCAService(orgID);
     var enrollmentSecret = null;
     return getCAAdminUser(orgID)
@@ -620,7 +624,7 @@ function _enroll(client, username, orgID) {
 
         return caService.register({
           enrollmentID: username,
-          affiliation: orgID
+          affiliation: affiliation //orgID
         }, adminUserObj);
       }).then((secret) => {
         enrollmentSecret = secret;
@@ -698,7 +702,7 @@ function _setClientContextFromFile(client, /*username, */ orgID) {
         // also call 'setUserContext()' inside
         return client.createUser({
           username: username,
-          mspid: getMspID(orgID),
+          mspid: "ibp.PeerOrg3", //getMspID(orgID),
           cryptoContent: {
             privateKeyPEM: keyPEM,
             signedCertPEM: certPEM

@@ -195,10 +195,11 @@ function loadIBPConfigObject(ibpConfigFile) {
 
     var ibpConfig = JSON.parse(fs.readFileSync(ibpConfigFile).toString());
 
+    var ibpOrdererId = _.keys(_.get(ibpConfig, 'orderers'))[0];
     var networkConfig = {
         "orderer": {
-            url: _.get(ibpConfig, 'orderers.orderer.url'),
-            tlsCACerts: _.get(ibpConfig, 'orderers.orderer.tlsCACerts.pem')
+            url: _.get(ibpConfig, `orderers.${ibpOrdererId}.url`),
+            tlsCACerts: _.get(ibpConfig, `orderers.${ibpOrdererId}.tlsCACerts.pem`)
         }
     };
 
