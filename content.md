@@ -1,7 +1,7 @@
 # What is fabric-rest?
 
-This server provides a convenient REST interface for web applications to transact on 
-[Hyperledger Fabric 1.0](https://github.com/hyperledger/fabric) network. 
+This server provides a convenient REST interface for web applications to transact on
+[Hyperledger Fabric 1.0](https://github.com/hyperledger/fabric) network.
 It uses [Node.js SDK](https://github.com/hyperledger/fabric-sdk-node) API to call peers, orderer and CA servers of network's members.
 
 # How to use this image
@@ -10,7 +10,7 @@ docker run \
     -v $PWD/artifacts:/usr/src/artifacts \
     -P \
     maxxx1313/fabric-rest:ibp
-``` 
+```
 Api web-interface become available on `http://localhost:4000` when launched.
 
 
@@ -21,7 +21,7 @@ Image Variants
 Images for deploying hyperledger blockchain network using legacy configuration file.
 
 `maxxx1313/fabric-rest:<version>-ibp`
-Images for working IBM Blockchain Platform. It's not guaranteed to properly work with legacy configuration, that's the reason why it's located in a separate tag.
+Images for working with IBM Blockchain Platform. It's not guaranteed to properly work with legacy configuration, that's the reason why it's located in a separate tag.
 
 Environment
 ======================
@@ -35,8 +35,8 @@ It can be either `network-config.json` format, or `ibp-config.json` format (pref
 Known issues
 ======================
 
-* peer ID should be started with 'peer' word (specified in `network-config.json`).  
-  
+* peer ID should be started with 'peer' word (specified in `network-config.json`).
+
   RIGHT:
 ```
    ...
