@@ -427,7 +427,7 @@ function getCAClientForOrg(orgID) {
     var client = _newClient(adminUser.username, orgID);
     caClients[orgID] = _setClientCAAdminContext(client, orgID)
       .then(()=>client)
-      .catch(() => {
+      .catch((e) => {
         delete caClients[orgID];
         throw e;
       });
