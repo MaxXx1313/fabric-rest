@@ -6,6 +6,7 @@ angular.module('nsd.controller', [
   'nsd.controller.login',
   'nsd.controller.info',
   'nsd.controller.query',
+  'nsd.controller.blocks',
 ]);
 
 angular.module('nsd.service', [
@@ -15,7 +16,7 @@ angular.module('nsd.service', [
   'nsd.service.socket'
 ]);
 
-angular.module('nsd.app',[
+angular.module('nsd.app', [
    'ui.router',
    'ui.bootstrap',
    'ui.materialize',
@@ -30,7 +31,8 @@ angular.module('nsd.app',[
 
    'nsd.directive.form',
    'nsd.directive.certificate',
-   'nsd.directive.blockchain'
+   'nsd.directive.blockchain',
+   'nsd.directive.jigsaw'
 ])
 .config(function($stateProvider) {
 
@@ -81,6 +83,17 @@ angular.module('nsd.app',[
       data:{
         default: true,
         name: 'Info',
+        guest:false
+      }
+    })
+
+    .state('app.blocks', {
+      url: 'blocks',
+      templateUrl: 'pages/blocks.html',
+      controller: 'BlocksController',
+      controllerAs: 'ctl',
+      data:{
+        name: 'Blocks',
         guest:false
       }
     });

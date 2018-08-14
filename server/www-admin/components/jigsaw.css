@@ -1,0 +1,115 @@
+jigsaw {
+  display: block;
+  width: 4em;
+  height: 3.5em;
+  position: relative;
+  -webkit-border-radius: .3em;
+  -moz-border-radius: .3em;
+  border-radius: .3em;
+
+  margin-bottom: 3px;
+
+  border: 1px solid #0d47a1;  /* blue darken-4 */
+}
+
+jigsaw.dashed {
+  border-style: dashed;
+}
+
+jigsaw {
+  background-color: #0d47a1; /* blue darken-4 */
+}
+jigsaw:hover {
+  background-color: #1976d2;  /* blue darken-3 */
+}
+
+jigsaw.outline {
+  background-color: #e3f2fd; /* blue lighten-5 */
+}
+jigsaw.outline:hover {
+  background-color: #90caf9; /* blue lighten-3 */
+}
+
+jigsaw span {
+  background-color: inherit;
+}
+
+
+jigsaw .text {
+  display: block;
+  text-align: center;
+  padding: 0.75em;
+  line-height: 2.5em;
+  position: relative;
+  background: transparent !important;
+  color: inherit;
+}
+
+jigsaw .bottom {
+  position: absolute;
+  width: 1.5em;
+  height: 1.5em;
+}
+
+jigsaw .bottom {
+  border: inherit;
+  border-top: 0;
+  border-left: 0;
+  transform: rotate(45deg);
+}
+
+jigsaw .bottom {
+  top: 2.7em;
+  left: 1.25em;
+}
+
+/*
+jigsaw .top,
+jigsaw .right,
+jigsaw .bottom,
+jigsaw .left {
+  position: absolute;
+  width: 1.5em;
+  height: 1.5em;
+
+  -webkit-border-radius: 3em;
+  -moz-border-radius: 3em;
+  border-radius: 3em;
+}
+
+jigsaw .inset {
+  background: white;
+}
+
+jigsaw .top {
+  top: -1em;
+  left: 1.25em;
+}
+jigsaw .top.inset {
+  top: -0.5em;
+}
+
+jigsaw .right {
+  top: 1.0em;
+  left: 3.5em;
+}
+jigsaw .right.inset {
+  left: 3em;
+}
+
+jigsaw .bottom {
+  top: 3.0em;
+  left: 1.25em;
+}
+jigsaw .bottom.inset {
+  top: 2.5em;
+}
+
+jigsaw .left {
+  top: 1.0em;
+  left: -1em;
+}
+jigsaw .left.inset {
+  left: -0.5em;
+}
+*/

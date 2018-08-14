@@ -34,6 +34,21 @@ function ChannelService(ApiService, $q) {
   /**
    *
    */
+  ChannelService.getBlocks = function(channelId, blockIndex) {
+    return ApiService.channels.getBlocks(channelId, blockIndex);
+  }
+
+    /**
+   *
+   */
+  ChannelService.getBlock = function(channelId, blockIndex) {
+    return ApiService.channels.getBlock(channelId, blockIndex);
+  }
+
+
+  /**
+   *
+   */
   ChannelService.getLastBlock = function(channelId) {
     return ApiService.channels.get(channelId)
       .then(function(currentBlockHash){

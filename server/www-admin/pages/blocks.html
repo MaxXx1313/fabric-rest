@@ -1,0 +1,36 @@
+
+<h2>Blocks</h2>
+
+
+
+<h2>Channels ({{ctl.channels.length||0}})</h2>
+<ul class="list">
+  <li ng-repeat="ch in ctl.channels">{{::ch.channel_id}}</li>
+</ul>
+
+<!-- channel selector -->
+ <div class="form-group">
+  <label>Channel</label>
+  <select ng-model="selectedChannel" material-select watch ng-options="o.channel_id for o in ctl.channels" placeholder="Channel ID" required>
+  </select>
+</div>
+
+
+<div class="row">
+  <div class="col m1" style="max-height: 50vh; overflow-y: scroll; padding-bottom: 10px">
+    <div ng-show="selectedChannel" style="zoom: 70%">
+      <jigsaw class="outline" ng-repeat="b in ctl.blocks" text="{{::b.index}}" bottom="true" ng-click="ctl.loadBlockInfo(b.index)"></jigsaw>
+
+      <jigsaw class="outline dashed" text="more" bottom="true" ng-click="ctl.loadMore()"></jigsaw>
+    </div>
+  </div>
+  <div class="col m11">
+
+    <!-- -->
+    <div ng-show="ctl.selectedIndex">
+      <h2>Block #{{ctl.selectedIndex}}</h2>
+      <json-formatter open="1" json="ctl.blockInfo"></json-formatter>
+    </div>
+
+  </div>
+</div>

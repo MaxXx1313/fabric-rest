@@ -121,10 +121,22 @@ function ApiService($log, $http, env) {
 
   /**
    * @param {string} channelName
-   * @param {string} blockHash - base64 block hash
+   * @param {number} [blockIndex]
    * @return {Promise<{currentBlockHash:string, previousBlockHash:string}>}
    */
-  ApiService.channels.getBlock = function(channelName, blockHash){
+  ApiService.channels.getBlocks = function(channelName, blockIndex) {
+
+    var params = {peer: QUERY_PEER, last:blockIndex};
+    return $http.get(cfg.api+'/channels/'+channelName+'/blocks', {params:params})
+      .then(function(response){ return response.data; });
+  };
+
+  /**
+   * @param {string} channelName
+   * @param {string} blockHash - base64 block hash OR! block index
+   * @return {Promise<{currentBlockHash:string, previousBlockHash:string}>}
+   */
+  ApiService.channels.getBlock = function(channelName, blockHash) {
 
     var params = {peer: QUERY_PEER};
     return $http.get(cfg.api+'/channels/'+channelName+'/blocks/'+blockHash, {params:params})
