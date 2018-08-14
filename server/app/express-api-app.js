@@ -394,6 +394,7 @@ app.get('/channels/:channelName', function(req, res) {
 });
 
 
+
 //Query channel binary configuration
 // TODO: it's not clear whether it work properly or not
 app.get('/channels/:channelName/config', function(req, res) {
@@ -499,51 +500,64 @@ app.get('/channels/:channelName/chaincodes/:chaincodeName', function(req, res) {
 });
 
 
-//  Query Get Block by BlockNumber
-app.get('/channels/:channelName/blocks/:blockId', function(req, res) {
-    logger.debug('==================== GET BLOCK BY NUMBER ==================');
-    let channelName = req.params.channelName;
-    let blockId     = req.params.blockId;
-    let peer        = req.query.peer;
-
-    logger.debug('channelName : ' + channelName);
-    logger.debug('BlockID : ' + blockId);
-    logger.debug('Peer : ' + peer);
-
-    if (!peer) {
-      res.error(getErrorMessage("'peer'"));
-      return;
-    }
-    if (!blockId) {
-        res.error(getErrorMessage('\'blockId\''));
-        return;
-    }
-
-    res.promise(
-      query.getBlockByNumber(peer, channelName, blockId, req.username, ORG)
-    );
-});
-
-// Query Get Block by Hash
+//Query for Channel blocks
 app.get('/channels/:channelName/blocks', function(req, res) {
-  logger.debug('================ GET BLOCK BY HASH ======================');
+  logger.debug('================ GET CHANNEL BLOCKS ======================');
   logger.debug('channelName : ' + req.params.channelName);
   let channelName = req.params.channelName;
-  let hash = req.query.hash;
+
   let peer = req.query.peer;
+  let limit = parseInt(req.query.limit) || 10;
+  let lastBlock = req.query.last || null;
+
 
   if (!peer) {
     res.error(getErrorMessage("'peer'"));
     return;
   }
-  if (!hash) {
-    res.error(getErrorMessage('\'hash\''));
-    return;
-  }
 
   res.promise(
-    query.getBlockByHash(peer, channelName, hash, req.username, ORG)
+    query.getBlockList(peer, channelName, lastBlock, {limit: limit}, req.username, ORG)
   );
+});
+
+
+// Query Block by BlockNumber
+// Query Block by Hash
+app.get('/channels/:channelName/blocks/:hash', function(req, res) {
+
+    let hash = req.params.hash;
+    const isIndex = (''+parseInt(hash)) === hash;
+
+    if (isIndex) {
+        logger.debug('==================== GET BLOCK BY NUMBER ==================');
+    } else {
+        logger.debug('================ GET BLOCK BY HASH ======================');
+    }
+
+    logger.debug('channelName : ' + req.params.channelName);
+    let channelName = req.params.channelName;
+    let peer = req.query.peer;
+
+    if (!peer) {
+        res.error(getErrorMessage("'peer'"));
+        return;
+    }
+    if (!hash) {
+        res.error(getErrorMessage("'hash'"));
+        return;
+    }
+
+    if (isIndex) {
+        res.promise(
+            query.getBlockByNumber(peer, channelName, hash, req.username, ORG)
+        );
+    } else {
+        res.promise(
+            query.getBlockByHash(peer, channelName, hash, req.username, ORG)
+        );
+    }
+
 });
 
 

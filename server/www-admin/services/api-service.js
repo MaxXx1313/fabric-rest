@@ -120,15 +120,14 @@ function ApiService($log, $http, env) {
   };
 
   /**
-   * Queries the names of all the channels that a peer has joined.
    * @param {string} channelName
    * @param {string} blockHash - base64 block hash
    * @return {Promise<{currentBlockHash:string, previousBlockHash:string}>}
    */
   ApiService.channels.getBlock = function(channelName, blockHash){
 
-    var params = {peer: QUERY_PEER, hash: blockHash};
-    return $http.get(cfg.api+'/channels/'+channelName+'/blocks', {params:params})
+    var params = {peer: QUERY_PEER};
+    return $http.get(cfg.api+'/channels/'+channelName+'/blocks/'+blockHash, {params:params})
       .then(function(response){ return response.data; });
   };
 
