@@ -17,18 +17,18 @@
 
 
 <div class="row">
-  <div class="col m1" style="max-height: 50vh; overflow-y: scroll; padding-bottom: 10px">
+  <div class="col m1">
     <div ng-show="selectedChannel" style="zoom: 70%">
-      <jigsaw class="outline" ng-repeat="b in ctl.blocks" text="{{::b.index}}" bottom="true" ng-click="ctl.loadBlockInfo(b.index)"></jigsaw>
+      <jigsaw class="outline" ng-repeat="b in ctl.blocks" bottom="true" ng-click="ctl.loadBlockInfo(b.index)">{{::b.index}}</jigsaw>
 
-      <jigsaw class="outline dashed" text="more" bottom="true" ng-click="ctl.loadMore()"></jigsaw>
+      <jigsaw class="outline dashed" bottom="true" ng-click="ctl.loadMore()">more</jigsaw>
     </div>
   </div>
   <div class="col m11">
 
     <!-- -->
     <div ng-show="ctl.selectedIndex">
-      <h2>Block #{{ctl.selectedIndex}}</h2>
+      <h2>Block no.{{ctl.selectedIndex}}</h2>
       <json-formatter open="1" json="ctl.blockInfo"></json-formatter>
     </div>
 
