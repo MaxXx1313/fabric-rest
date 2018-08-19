@@ -27,15 +27,13 @@ const PORT     = process.env.PORT || 4000;
 const WEB_DIR  = process.env.WEB_DIR || 'www';
 const M_C_F    = process.env.MIDDLEWARE_CONFIG_FILE || './middleware/map.json';
 
-var clientEnv = {
-  api: process.env.FABRIC_API || ''
-};
+
 var socketOptions = { origins: '*:*'};
 
 ////
 var app = express();
-var adminApp = require('./app/express-web-app')('www-admin', clientEnv);
-var webApp   = require('./app/express-web-app')(WEB_DIR, clientEnv);
+var adminApp = require('./app/express-web-app')('www-admin');
+var webApp   = require('./app/express-web-app')(WEB_DIR);
 var apiApp   = require('./app/express-api-app')(); // TODO: this app still uses process.env. get rid of it
 
 

@@ -17,7 +17,7 @@ var expressJWT      = require('express-jwt');
 var cors            = require('cors');
 var bearerToken     = require('express-bearer-token');
 var expressPromise  = require('../lib/express-promise');
-var expressEnv      = require('../lib/express-env-middleware');
+var expressJs      = require('../lib/express-js-file-middleware');
 
 var jwt   = require('jsonwebtoken');
 var tools = require('../lib/tools');
@@ -340,7 +340,7 @@ adminPartyApp.post('/channels/:channelName/chaincodes', function(req, res) {
 var clientConfig = hfc.getConfigSetting('config');
 clientConfig.org = ORG;
 
-app.get('/config.js', expressEnv('__config', clientConfig));
+app.get('/config.js', expressJs('__config', clientConfig));
 app.get('/config', function(req, res) {
     res.setHeader('X-Api-Version', packageInfo.version);
     res.send(clientConfig);

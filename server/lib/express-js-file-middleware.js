@@ -6,7 +6,7 @@ var js_template_post = '; }(this));';
  * @param {string} [varName]
  * @param {object} envConfig
  */
-function envConfigMiddleware(varName, envConfig){
+function jsFileMiddleware(varName, envConfig){
   // first argument can be omitted
   if (typeof envConfig === "undefined"){
     envConfig = varName;
@@ -22,4 +22,4 @@ function envConfigMiddleware(varName, envConfig){
 }
 
 
-module.exports = envConfigMiddleware;
+module.exports = jsFileMiddleware;

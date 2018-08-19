@@ -10,7 +10,8 @@ function ApiService($log, $http, env) {
 
   // jshint shadow: true
   var ApiService = this;
-  var cfg = env;
+  var cfg = env || {};
+  cfg.api = cfg.api || '';
 
   var QUERY_PEER = null /*'peer1'*/;
 
@@ -18,7 +19,7 @@ function ApiService($log, $http, env) {
    *
    */
   ApiService.getConfig = function(){
-    return $http.get(cfg.api+'/config')
+    return $http.get(cfg.api + '/config')
         .then(function(response){ return response.data; })
         .then(function(config){
 
@@ -76,14 +77,14 @@ function ApiService($log, $http, env) {
       username:username,
       orgName:orgName
     };
-    return $http.post(cfg.api+'/users', payload)
+    return $http.post(cfg.api + '/users', payload)
       .then(function(response){ return response.data; });
   };
 
 
   ApiService.user.refreshToken = function() {
     // $log.debug('ApiService.refreshToken', username, orgName);
-    return $http.post(cfg.api+'/token', {})
+    return $http.post(cfg.api + '/token', {})
       .then(function(response){ return response.data; });
   };
 
@@ -104,7 +105,7 @@ function ApiService($log, $http, env) {
    */
   ApiService.channels.list = function(){
     var params = {peer: QUERY_PEER};
-    return $http.get(cfg.api+'/channels', {params:params})
+    return $http.get(cfg.api + '/channels', {params:params})
       .then(function(response){ return response.data.channels; });
   };
 
@@ -115,7 +116,7 @@ function ApiService($log, $http, env) {
    */
   ApiService.channels.get = function(channelName){
     var params = {peer: QUERY_PEER};
-    return $http.get(cfg.api+'/channels/'+channelName, {params:params})
+    return $http.get(cfg.api + '/channels/' + channelName, {params:params})
       .then(function(response){ return response.data.currentBlockHash; });
   };
 
@@ -127,7 +128,7 @@ function ApiService($log, $http, env) {
   ApiService.channels.getBlocks = function(channelName, blockIndex) {
 
     var params = {peer: QUERY_PEER, last:blockIndex};
-    return $http.get(cfg.api+'/channels/'+channelName+'/blocks', {params:params})
+    return $http.get(cfg.api + '/channels/' + channelName + '/blocks', {params:params})
       .then(function(response){ return response.data; });
   };
 
@@ -139,7 +140,7 @@ function ApiService($log, $http, env) {
   ApiService.channels.getBlock = function(channelName, blockHash) {
 
     var params = {peer: QUERY_PEER};
-    return $http.get(cfg.api+'/channels/'+channelName+'/blocks/'+blockHash, {params:params})
+    return $http.get(cfg.api + '/channels/' + channelName + '/blocks/' + blockHash, {params:params})
       .then(function(response){ return response.data; });
   };
 
@@ -161,7 +162,7 @@ function ApiService($log, $http, env) {
   ApiService.chaincodes.list = function(params){
     params = params || {};
     params.peer = params.peer || QUERY_PEER;
-    return $http.get(cfg.api+'/chaincodes', {params:params})
+    return $http.get(cfg.api + '/chaincodes', {params:params})
       .then(function(response){ return response.data.chaincodes; });
   };
 
@@ -191,7 +192,7 @@ function ApiService($log, $http, env) {
       fcn   : fcn,
       args  : ApiService.stringify(args || [])
     };
-    return $http.post(cfg.api+'/channels/'+channelID+'/chaincodes/'+contractId, payload)
+    return $http.post(cfg.api + '/channels/' + channelID + '/chaincodes/' + contractId, payload)
       .then(function(response){ return response.data; });
   };
 
@@ -211,7 +212,7 @@ function ApiService($log, $http, env) {
       // arg need to be a string here, because it's passed in url
       args : JSON.stringify(ApiService.stringify(args) || [])
     };
-    return $http.get(cfg.api+'/channels/'+channelID+'/chaincodes/'+contractId, {params:params})
+    return $http.get(cfg.api + '/channels/' + channelID + '/chaincodes/' + contractId, {params:params})
       .then(function(response){ return response.data; });
   };
 
@@ -244,7 +245,7 @@ function ApiService($log, $http, env) {
    */
   ApiService.transaction.getById = function(channelID, txId) {
     var params = {peer:QUERY_PEER};
-    return $http.get(cfg.api+'/channels/'+channelID+'/transactions/'+txId, {params:params})
+    return $http.get(cfg.api + '/channels/' + channelID + '/transactions/' + txId, {params:params})
       .then(function(response){ return response.data; });
   };
 
