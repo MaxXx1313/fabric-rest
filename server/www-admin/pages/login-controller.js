@@ -2,7 +2,7 @@
  * @class LoginController
  * @ngInject
  */
-function LoginController($scope, UserService, $state, ApiService) {
+function LoginController($scope, UserService, $state, ConfigLoader, ApiService) {
   var ctl = this;
 
   ctl.config = null;
@@ -26,7 +26,12 @@ function LoginController($scope, UserService, $state, ApiService) {
       })
   };
 
-}
+
+  ctl.getOrgName = function() {
+    return ConfigLoader.getOrgName();
+  };
+
+} // -
 
 
 angular.module('nsd.controller.login', ['nsd.service.user'])

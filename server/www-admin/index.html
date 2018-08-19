@@ -54,7 +54,7 @@
           <img class="hide-on-large-only" src="images/logo-small.png" alt="Altoros logo small">
         </a>
 
-        <div class="title hide-on-med-and-down pull-left">{{::_config.org}}</div>
+        <div class="title hide-on-med-and-down pull-left" ng-cloak>{{::ctrl.getOrgName()}}</div>
 
         <ul class="menu hide-on-med-and-down" ng-cloak ng-show="ctrl.authorized()">
           <li ng-repeat="state in ctrl.$state.get()|filter:ctrl.visibleMenuItem">

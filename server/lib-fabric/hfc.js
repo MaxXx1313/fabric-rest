@@ -86,6 +86,7 @@ function loadConfigFile(configFile) {
  *
  * @property {object} network-config.<orgId>
  * @property {object} network-config.<orgId>.name
+ * @property {object} [network-config.<orgId>.x-name]
  * @property {object} network-config.<orgId>.mspid
  * @property {object} network-config.<orgId>.ca - ca url
  *
@@ -110,7 +111,10 @@ function loadConfigFile(configFile) {
  * @property {string}  version
  * @property {string}  x-type
 
- * @property {object}  client - client info (TODO)
+ * @property {object}  client - client info
+ * @property {string}  client.organization - organisation ID
+ * @property {string}  [client.x-organizationName] - organisation human-readable name
+
  * @property {object}  channels - (TODO)
  *
  * @property {object}                   organizations - organisations info
@@ -195,12 +199,18 @@ function loadIBPConfigObject(ibpConfigFile) {
 
     var ibpConfig = JSON.parse(fs.readFileSync(ibpConfigFile).toString());
 
+    var networkConfig = {};
+
+    // home IBM will fix if on their own
+    if ( _.get(ibpConfig, 'client.x-organizationName')) {
+        const orgId = _.get(ibpConfig, 'client.organization');
+        _.set(ibpConfig, `organizations.${orgId}.x-organizationName`, _.get(ibpConfig, 'client.x-organizationName'));
+    }
+
     var ibpOrdererId = _.keys(_.get(ibpConfig, 'orderers'))[0];
-    var networkConfig = {
-        "orderer": {
-            url: _.get(ibpConfig, `orderers.${ibpOrdererId}.url`),
-            tlsCACerts: _.get(ibpConfig, `orderers.${ibpOrdererId}.tlsCACerts.pem`)
-        }
+    networkConfig.orderer = {
+        url: _.get(ibpConfig, `orderers.${ibpOrdererId}.url`),
+        tlsCACerts: _.get(ibpConfig, `orderers.${ibpOrdererId}.tlsCACerts.pem`)
     };
 
     _.each(_.keys(ibpConfig.peers), peer => {
@@ -221,6 +231,7 @@ function loadIBPConfigObject(ibpConfigFile) {
         if (!networkConfig[org]) {
             networkConfig[org] = {
                 name: org,
+                'x-name': _.get(ibpConfig, `organizations.${org}.x-organizationName`),
                 mspid: _.get(ibpConfig, `organizations.${org}.mspid`),
                 ca: _.get(ibpConfig, `certificateAuthorities.${orgCA}.url`)
             };

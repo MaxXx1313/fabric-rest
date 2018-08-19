@@ -2,7 +2,7 @@
  * @class MainController
  * @ngInject
  */
-function MainController($scope, UserService, $state, ApiService) {
+function MainController($scope, UserService, $state, ConfigLoader, ApiService) {
   var ctrl = this;
 
   ctrl.$state = $state;
@@ -27,6 +27,9 @@ function MainController($scope, UserService, $state, ApiService) {
     $state.go('app.login');
   }
 
+  ctrl.getOrgName = function() {
+    return ConfigLoader.getOrgName();
+  };
 
   return ctrl;
 }

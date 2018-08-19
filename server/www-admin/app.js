@@ -324,10 +324,20 @@ angular.module('nsd.app', [
       return m[2];
     }
 
+
+
+    function getOrgName() {
+      var config = _config || {};
+      var orgId = config.org;
+      return _.get(config, 'network-config.' + orgId + '.x-name')|| orgId || undefined;
+    };
+
+
     return {
       load:_resolveConfig,
       getOrgs: getOrgs,
       getPeers: getPeers,
+      getOrgName: getOrgName,
 
       get:function(){ return _config; }
     };
