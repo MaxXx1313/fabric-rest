@@ -46,6 +46,9 @@ angular.module('nsd.directive.blockView', [])
        */
       function getBlockCreator(block) {
         var result;
+        if (!block) {
+          return result;
+        }
         try {
           result = block.data.data[0].payload.header.signature_header.creator.IdBytes;
         } catch(e) {
@@ -61,6 +64,9 @@ angular.module('nsd.directive.blockView', [])
        */
       function getBlockEndorsers(block) {
         var result;
+        if (!block) {
+          return result;
+        }
         try {
           result = block.data.data[0].payload.data.actions[0].payload.action.endorsements.map(e => e.endorser.IdBytes);
         } catch(e) {
@@ -75,6 +81,10 @@ angular.module('nsd.directive.blockView', [])
        */
       function getBlockResult(block) {
         var result = null;
+        if (!block) {
+          return result;
+        }
+
         try {
           result = {};
           // TODO: loop trough actions
