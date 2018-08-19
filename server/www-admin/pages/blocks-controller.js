@@ -88,6 +88,7 @@ function BlocksController(ChannelService, ConfigLoader, $scope) {
 angular.module('nsd.controller.blocks', [
   'nsd.service.channel',
   'nsd.directive.jigsaw',
-  'nsd.directive.preloader'
+  'nsd.directive.preloader',
+  'nsd.directive.blockView'
 ])
 .controller('BlocksController', BlocksController);

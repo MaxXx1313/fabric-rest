@@ -1,0 +1,30 @@
+<div class="row" ng-if="::initialized">
+  <div class="col s12">
+    <ul class="tabs" tabs>
+      <li class="tab col s3"><a href="#tab-json">Json</a></li>
+      <li class="tab col s3"><a href="#tab-info">Metadata</a></li>
+      <li class="tab col s3"><a href="#tab-result">Result</a></li>
+    </ul>
+  </div>
+
+  <div id="tab-json" class="col s12">
+    <json-formatter open="1" json="ctl.block"></json-formatter>
+  </div>
+
+  <div id="tab-info" class="col s12">
+    <p ng-if="!ctl.creator"><i>No metadata</i></p>
+
+    <certificate title="Transaction creator" data="ctl.creator"></certificate>
+    <div ng-repeat="e in ctl.endorsers">
+      <certificate title="Endorser" data="e"></certificate>
+      <!-- <json-formatter open="1" json="e.endorser"></json-formatter> -->
+    </div>
+    <!-- ctl.block.transactionEnvelope.payload.data.actions[0].payload.action.proposal_response_payload.extension.results.ns_rwset[].rwset.writes[](key|value|is_delete) -->
+  </div>
+
+  <div id="tab-result" class="col s12">
+    <!-- <json-formatter open="1" json="ctl.block.transactionEnvelope.payload.data.actions[0].payload.action.proposal_response_payload.extension.results.ns_rwset"></json-formatter> -->
+    <json-formatter open="2" json="ctl.result"></json-formatter>
+  </div>
+
+</div>
