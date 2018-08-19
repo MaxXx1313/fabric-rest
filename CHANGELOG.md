@@ -1,9 +1,12 @@
 Changelog
 =========
 
+## 0.12.5
+* pass evironment variables which starts with `WEBAPP_*` to config
+
 ## 0.12.4
 * use `x-organizationName` from `ibp-config.json`
-* pass evironment variables which starts with `WEBAPP_*` to UI
+* pass evironment variables which starts with `WEBAPP_*` to UI `__env` varialble
 * add block history view
 
 ## 0.12.3
