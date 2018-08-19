@@ -10,8 +10,7 @@ function ApiService($log, $http, env) {
 
   // jshint shadow: true
   var ApiService = this;
-  var cfg = env || {};
-  cfg.api = cfg.api || '';
+  var cfg = env;
 
   var QUERY_PEER = null /*'peer1'*/;
 
@@ -253,5 +252,7 @@ function ApiService($log, $http, env) {
 
 
 
-angular.module('nsd.service.api', ['nsd.config.env'])
+angular.module('nsd.service.api', [
+  'nsd.config.env'
+])
   .service('ApiService', ApiService);

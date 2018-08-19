@@ -17,6 +17,7 @@ hfc.setLogger(logger);
  * Current organisation
  */
 const ORG = process.env.ORG || null;
+const env = getPublicEnv();
 
 hfc.setConfigSetting('org', ORG);
 
@@ -77,6 +78,8 @@ function loadConfigFile(configFile) {
 
 /**
  * @typedef {object} NetworkConfig
+ *
+ * @property {object} env - 'WEBAPP_*' and 'X_*' environment variables
  *
  * @property {object} network-config
  *
@@ -184,6 +187,8 @@ function loadNetworkConfigObject(configFile) {
 
     const networkConfig = JSON.parse(fs.readFileSync(configFile).toString());
     hfc.addConfigFile(configFile);  // this config needed for lib-fabric
+
+    networkConfig.env = env;
     hfc.setConfigSetting('config', networkConfig);  // this config needed for client
 }
 
@@ -245,6 +250,56 @@ function loadIBPConfigObject(ibpConfigFile) {
     });
 
     hfc.addConfigFile(ibpConfigFile);
-    hfc.setConfigSetting('config', {"network-config": networkConfig});
+    hfc.setConfigSetting('config', {"network-config": networkConfig, env: env});
     hfc.setConfigSetting('network-config', networkConfig);
+}
+
+
+
+
+
+
+/**
+ *
+ */
+function envForbiddenRules(key) {
+    return [
+        // key.startsWith('npm_'),
+        // key.startsWith('SSH_'),
+        // key == 'GRPC_SSL_CIPHER_SUITES',
+        // key == 'LS_COLORS',
+        // key == 'PATH',
+
+        false // allow all
+        // true // deny all
+    ];
+};
+
+/**
+ *
+ */
+function envAllowedRules(key) {
+    return [
+        // key.startsWith('LC_'),
+        key.startsWith('X_'),
+        key.startsWith('x_'),
+        key.startsWith('WEBAPP_'),
+        key.startsWith('webapp_'),
+        key == 'ORG',
+        key == 'API',
+        // key == 'CONFIG_FILE',
+    ];
+};
+
+/**
+ *
+ */
+function getPublicEnv() {
+  return Object.keys(process.env)
+      .filter(key => envForbiddenRules(key).every( r => !r ))
+      .filter(key => !envAllowedRules(key).every( r => !r ))
+      .reduce((result, key) => {
+          result[key] = process.env[key];
+          return result;
+      }, {});
 }
