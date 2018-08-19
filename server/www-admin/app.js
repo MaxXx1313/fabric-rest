@@ -32,7 +32,8 @@ angular.module('nsd.app', [
    'nsd.directive.form',
    'nsd.directive.certificate',
    'nsd.directive.blockchain',
-   'nsd.directive.jigsaw'
+   'nsd.directive.jigsaw',
+   'nsd.directive.preloader'
 ])
 .config(function($stateProvider) {
 

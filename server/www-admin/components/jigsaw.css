@@ -1,3 +1,8 @@
+
+.jigsaw-margin {
+  margin: 20px 0 0 5px;
+}
+
 jigsaw {
   display: block;
   width: 4em;
