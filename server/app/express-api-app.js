@@ -82,12 +82,20 @@ if(config.admin_party) {
 // set secret variable
 app.set('secret', config.jwt_secret);
 
+// https://stackoverflow.com/questions/27117337/exclude-route-from-express-middleware
+function unless(pathArr, middleware) {
+    return function(req, res, next) {
+        console.log('PATH', req.path);
+        if (pathArr.includes(req.path)) {
+            return next();
+        } else {
+            return middleware(req, res, next);
+        }
+    };
+};
+
 var pathExcluded = ['/config', '/config.js', '/socket.io', '/genesis'];
-app.use(expressJWT({
-    secret: config.jwt_secret
-}).unless({
-    path: pathExcluded
-}));
+app.use(unless( pathExcluded, expressJWT({ secret: config.jwt_secret }) ));
 
 // extract token
 // https://www.npmjs.com/package/express-bearer-token
@@ -111,7 +119,7 @@ app.use(function(req,res,next){
 
 // verify token
 app.use(function(req, res, next) {
-    if ( pathExcluded.indexOf(req.originalUrl) >= 0) {
+    if ( pathExcluded.indexOf(req.path) >= 0) {
         return next();
     }
 
@@ -340,10 +348,23 @@ adminPartyApp.post('/channels/:channelName/chaincodes', function(req, res) {
 var clientConfig = hfc.getConfigSetting('config');
 clientConfig.org = ORG;
 
+
+var ibpConfig = hfc.getConfigSetting('ipb-config');
+
 app.get('/config.js', expressJs('__config', clientConfig));
 app.get('/config', function(req, res) {
     res.setHeader('X-Api-Version', packageInfo.version);
-    res.send(clientConfig);
+
+    const configVersion = req.query.v || '0';
+    switch (configVersion) {
+        case '1':
+            res.send(ibpConfig);
+            break;
+
+        default: // '0'
+            res.send(clientConfig);
+            break;
+    }
 });
 
 

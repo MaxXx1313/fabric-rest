@@ -252,10 +252,24 @@ function loadIBPConfigObject(ibpConfigFile) {
     hfc.addConfigFile(ibpConfigFile);
     hfc.setConfigSetting('config', {"network-config": networkConfig, env: env});
     hfc.setConfigSetting('network-config', networkConfig);
+
+
+
+
+    // clear sensitive information from ibp config
+    const ibpConfigSafe = clone(ibpConfig);
+    _.each(_.keys( _.get(ibpConfigSafe, `certificateAuthorities`)), orgId => {
+        _.unset(ibpConfigSafe, `certificateAuthorities.${orgId}.registrar`);
+    });
+
+    //
+    hfc.setConfigSetting('ipb-config', ibpConfigSafe);
 }
 
 
-
+function clone(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
 
 
 
