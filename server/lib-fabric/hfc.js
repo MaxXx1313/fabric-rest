@@ -79,7 +79,7 @@ function loadConfigFile(configFile) {
 /**
  * @typedef {object} NetworkConfig
  *
- * @property {object} env - 'WEBAPP_*' and 'X_*' environment variables
+ * @property {object} env - 'WEBAPP_*' environment variables
  *
  * @property {object} network-config
  *
@@ -269,12 +269,16 @@ function loadIBPConfigObject(ibpConfigFile) {
     _.each(_.keys( _.get(ibpConfigSafe, `certificateAuthorities`)), orgId => {
         _.unset(ibpConfigSafe, `certificateAuthorities.${orgId}.registrar`);
     });
+    ibpConfigSafe.env = env;
 
     //
     hfc.setConfigSetting('ipb-config', ibpConfigSafe);
 }
 
 
+/**
+ *
+ */
 function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
@@ -303,8 +307,6 @@ function envForbiddenRules(key) {
 function envAllowedRules(key) {
     return [
         // key.startsWith('LC_'),
-        key.startsWith('X_'),
-        key.startsWith('x_'),
         key.startsWith('WEBAPP_'),
         key.startsWith('webapp_'),
         key == 'ORG',
