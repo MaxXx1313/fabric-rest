@@ -190,6 +190,14 @@ function loadNetworkConfigObject(configFile) {
 
     networkConfig.env = env;
     hfc.setConfigSetting('config', networkConfig);  // this config needed for client
+
+
+    // enrollment config
+    const configJson = require('../config.json');
+    hfc.setConfigSetting('enrollmentConfig', {
+        enrollId:       _.get(configJson, 'user.username') || 'admin',
+        enrollSecret:   _.get(configJson, 'user.secret') || 'adminpw',
+    });
 }
 
 
