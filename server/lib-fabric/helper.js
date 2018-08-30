@@ -211,7 +211,11 @@ function _setupPeer(orgID, peerID){
  */
 function newOrderer() {
     return new Orderer(ORGS.orderer.url, {
-		'pem': getOrdererTlsCaCerts()
+		'pem': getOrdererTlsCaCerts(),
+      'grpc.http2.keepalive_time': 360,
+      'grpc.keepalive_time_ms': 360000,
+      'grpc.http2.keepalive_timeout': 180,
+      'grpc.keepalive_timeout_ms': 180000
 	});
 }
 
