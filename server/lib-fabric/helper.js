@@ -203,7 +203,14 @@ function getOrdererTlsCaCerts() {
  * @returns {Peer}
  */
 function _setupPeer(orgID, peerID){
-    return new Peer( ORGS[orgID][peerID].requests, {pem: getPeerTlsCaCert(orgID, peerID)});
+    return new Peer( ORGS[orgID][peerID].requests, {
+      pem: getPeerTlsCaCert(orgID, peerID),
+      'grpc.http2.max_pings_without_data': 0,
+      'grpc.http2.keepalive_time': 360,
+      'grpc.keepalive_time_ms': 360000,
+      'grpc.http2.keepalive_timeout': 180,
+      'grpc.keepalive_timeout_ms': 180000
+    });
 }
 
 /**
@@ -211,13 +218,16 @@ function _setupPeer(orgID, peerID){
  */
 function newOrderer() {
     return new Orderer(ORGS.orderer.url, {
-		'pem': getOrdererTlsCaCerts(),
-      'grpc.http2.keepalive_time': 360,
-      'grpc.keepalive_time_ms': 360000,
-      'grpc.http2.keepalive_timeout': 180,
+		  pem: getOrdererTlsCaCerts(),
+      'grpc.http2.max_pings_without_data': 0, 
+      'grpc.http2.keepalive_time': 360, 
+      'grpc.keepalive_time_ms': 360000, 
+      'grpc.http2.keepalive_timeout': 180, 
       'grpc.keepalive_timeout_ms': 180000
 	});
 }
+
+
 
 /**
  * @param {string} dir
@@ -361,7 +371,12 @@ function newEventHub(peerUrl, username, orgID) {
       }
       let eventHub = new EventHub(client);
       eventHub.setPeerAddr(peerInfo.org[peerInfo.peerID]['events'], {
-          pem: getPeerTlsCaCert(peerInfo.orgID, peerInfo.peerID)
+          pem: getPeerTlsCaCert(peerInfo.orgID, peerInfo.peerID),
+        'grpc.http2.max_pings_without_data': 0,
+        'grpc.http2.keepalive_time': 360,
+        'grpc.keepalive_time_ms': 360000,
+        'grpc.http2.keepalive_timeout': 180,
+        'grpc.keepalive_timeout_ms': 180000
       });
       return eventHub;
     });
