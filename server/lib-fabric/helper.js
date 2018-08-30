@@ -203,28 +203,36 @@ function getOrdererTlsCaCerts() {
  * @returns {Peer}
  */
 function _setupPeer(orgID, peerID){
-    return new Peer( ORGS[orgID][peerID].requests, {
-      pem: getPeerTlsCaCert(orgID, peerID),
-      'grpc.http2.max_pings_without_data': 0,
-      'grpc.http2.keepalive_time': 360,
-      'grpc.keepalive_time_ms': 360000,
-      'grpc.http2.keepalive_timeout': 180,
-      'grpc.keepalive_timeout_ms': 180000
-    });
+  const opts = {
+    pem: getPeerTlsCaCert(orgID, peerID),
+    'grpc.http2.max_pings_without_data': 0,
+    'grpc.http2.keepalive_time': 360,
+    'grpc.keepalive_time_ms': 360000,
+    'grpc.http2.keepalive_timeout': 180,
+    'grpc.keepalive_timeout_ms': 180000
+  };
+
+  logger.info('newPeer ' + JSON.stringify(opts));
+
+  return new Peer( ORGS[orgID][peerID].requests, opts);
 }
 
 /**
  * @returns {Orderer}
  */
 function newOrderer() {
-    return new Orderer(ORGS.orderer.url, {
-		  pem: getOrdererTlsCaCerts(),
-      'grpc.http2.max_pings_without_data': 0, 
-      'grpc.http2.keepalive_time': 360, 
-      'grpc.keepalive_time_ms': 360000, 
-      'grpc.http2.keepalive_timeout': 180, 
-      'grpc.keepalive_timeout_ms': 180000
-	});
+  const opts = {
+    pem: getOrdererTlsCaCerts(),
+    'grpc.http2.max_pings_without_data': 0,
+    'grpc.http2.keepalive_time': 360,
+    'grpc.keepalive_time_ms': 360000,
+    'grpc.http2.keepalive_timeout': 180,
+    'grpc.keepalive_timeout_ms': 180000
+  };
+
+  logger.info('newOrderer ' + JSON.stringify(opts));
+
+  return new Orderer(ORGS.orderer.url, opts);
 }
 
 
@@ -370,14 +378,20 @@ function newEventHub(peerUrl, username, orgID) {
         throw new Error('Failed to find a peer matching the url: ' + peerUrl);
       }
       let eventHub = new EventHub(client);
-      eventHub.setPeerAddr(peerInfo.org[peerInfo.peerID]['events'], {
-          pem: getPeerTlsCaCert(peerInfo.orgID, peerInfo.peerID),
+
+      const opts = {
+        pem: getPeerTlsCaCert(peerInfo.orgID, peerInfo.peerID),
         'grpc.http2.max_pings_without_data': 0,
         'grpc.http2.keepalive_time': 360,
         'grpc.keepalive_time_ms': 360000,
         'grpc.http2.keepalive_timeout': 180,
         'grpc.keepalive_timeout_ms': 180000
-      });
+      };
+
+      logger.info('newEventHub ' + JSON.stringify(opts));
+
+      eventHub.setPeerAddr(peerInfo.org[peerInfo.peerID]['events'], opts);
+
       return eventHub;
     });
 }
