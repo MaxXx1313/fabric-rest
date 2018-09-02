@@ -1,6 +1,6 @@
 {
   "name": "fabric-rest",
-  "version": "0.12.9",
+  "version": "0.12.10",
   "description": "API server for Hyperledger Fabric 1.1",
   "main": "app/index.js",
   "keywords": [
@@ -12,7 +12,7 @@
     "node": ">=6.9.5",
     "npm": ">=3.10.10"
   },
-  "repository" : {
+  "repository": {
     "type": "git",
     "url": "https://github.com/MaxXx1313/fabric-rest.git"
   },

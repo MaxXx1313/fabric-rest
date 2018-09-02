@@ -1,7 +1,7 @@
-# REST API server for Hyperledger Fabric 1.0
+# REST API server for Hyperledger Fabric 1.*
 
 This server provides a convenient REST interface for web applications to transact on 
-[Hyperledger Fabric 1.0](https://github.com/hyperledger/fabric) network. 
+[Hyperledger Fabric 1.*](https://github.com/hyperledger/fabric) network. 
 It uses [Node.js SDK](https://github.com/hyperledger/fabric-sdk-node) API to call peers, orderer and CA servers of 
 network's members.
 
