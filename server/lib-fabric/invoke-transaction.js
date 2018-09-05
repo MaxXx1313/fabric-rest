@@ -116,6 +116,16 @@ function invokeChaincode(peersUrls, channelID, chaincodeName, fcn, args, usernam
 
                     logger.error('Timeout - Failed to receive the transaction event after %d milliseconds', INVOKE_TIMEOUT);
                     reject(new Error(`Timed out waiting for block event after ${INVOKE_TIMEOUT} milliseconds`));
+
+                    // TODO: eventHub is broken? looking for transaction by ID
+                    // channel.queryTransaction(transactionID, channel.getPeers()[0])
+                    //     .then(() =>{
+                    //         resolve({status: 'SUCCESS'});
+                    //     })
+                    //     .catch(() => {
+                    //         reject(new Error(`Timed out waiting for block event after ${INVOKE_TIMEOUT} milliseconds`));
+                    //     });
+
                 }, INVOKE_TIMEOUT);
 
                 channel_event_hub.registerTxEvent( transactionID, function(tx_id, status, block_num) {
