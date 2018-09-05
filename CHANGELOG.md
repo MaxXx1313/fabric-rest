@@ -1,6 +1,11 @@
 Changelog
 =========
 
+## 0.12.11
+* use channel event hub to perform invoke transaction
+* added grpc options to peers and orderer
+* set grpc opts tighter per IBM recommendation
+
 ## 0.12.6
 * serve ibp-config (sensitive information are cut off) in `/config?v=1` endpoint
 * fix #4: network-config isn't work due to `enrollId`
