@@ -75,7 +75,19 @@ function QueryController($scope, ChannelService, ConfigLoader, $log, $q) {
 
     return ChannelService.invoke(channel.channel_id, cc.name, peers, fcn, args)
       .then(function(data){
-        return ChannelService.getTransactionById(channel.channel_id, data.transaction);
+        return ChannelService.getTransactionById(channel.channel_id, data.transaction)
+            .catch(function(e){
+              // console.log(e);
+              // HOTFIX: retry in a few ms
+              if (e.data.message.indexOf('Entry not found') >= 0) {
+                return $q(function(resolve){ setTimeout(resolve, 1000); })
+                    .then(function(){
+                      return ChannelService.getTransactionById(channel.channel_id, data.transaction);
+                    });
+              }
+
+              throw e;
+            });
       })
       .then(function(transaction){
         ctl.transaction = transaction;
