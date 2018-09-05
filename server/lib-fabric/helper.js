@@ -206,10 +206,15 @@ function _setupPeer(orgID, peerID){
   const opts = {
     pem: getPeerTlsCaCert(orgID, peerID),
     'grpc.http2.max_pings_without_data': 0,
+    'grpc.max_pings_without_data': 0,
     'grpc.http2.keepalive_time': 90,
     'grpc.keepalive_time_ms': 90000,
     'grpc.http2.keepalive_timeout': 20,
-    'grpc.keepalive_timeout_ms': 20000
+    'grpc.keepalive_timeout_ms': 20000,
+    'grpc.http2.min_time_between_pings_ms': 90000,
+    'grpc.min_time_between_pings_ms': 90000,
+    'grpc.http2.keepalive_permit_without_calls': 1,
+    'grpc.keepalive_permit_without_calls': 1
   };
 
   logger.info('newPeer ' + JSON.stringify(opts));
@@ -224,10 +229,15 @@ function newOrderer() {
   const opts = {
     pem: getOrdererTlsCaCerts(),
     'grpc.http2.max_pings_without_data': 0,
+    'grpc.max_pings_without_data': 0,
     'grpc.http2.keepalive_time': 90,
     'grpc.keepalive_time_ms': 90000,
     'grpc.http2.keepalive_timeout': 20,
-    'grpc.keepalive_timeout_ms': 20000
+    'grpc.keepalive_timeout_ms': 20000,
+    'grpc.http2.min_time_between_pings_ms': 90000,
+    'grpc.min_time_between_pings_ms': 90000,
+    'grpc.http2.keepalive_permit_without_calls': 1,
+    'grpc.keepalive_permit_without_calls': 1
   };
 
   logger.info('newOrderer ' + JSON.stringify(opts));
@@ -382,10 +392,15 @@ function newEventHub(peerUrl, username, orgID) {
       const opts = {
         pem: getPeerTlsCaCert(peerInfo.orgID, peerInfo.peerID),
         'grpc.http2.max_pings_without_data': 0,
+        'grpc.max_pings_without_data': 0,
         'grpc.http2.keepalive_time': 90,
         'grpc.keepalive_time_ms': 90000,
         'grpc.http2.keepalive_timeout': 20,
-        'grpc.keepalive_timeout_ms': 20000
+        'grpc.keepalive_timeout_ms': 20000,
+        'grpc.http2.min_time_between_pings_ms': 90000,
+        'grpc.min_time_between_pings_ms': 90000,
+        'grpc.http2.keepalive_permit_without_calls': 1,
+        'grpc.keepalive_permit_without_calls': 1
       };
 
       logger.info('newEventHub ' + JSON.stringify(opts));
