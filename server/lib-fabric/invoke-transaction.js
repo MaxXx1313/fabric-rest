@@ -26,12 +26,13 @@ const logger = helper.getLogger('invoke-chaincode');
 // const peerListener = require('./peer-listener');
 
 const INVOKE_TIMEOUT = parseInt(process.env.INVOKE_TIMEOUT) || 120000;
+const INVOKE_RETRIES = parseInt(process.env.INVOKE_RETRIES) || 10;
 
 
 // Invoke transaction on chaincode on target peers
 function invokeChaincode(peersUrls, channelID, chaincodeName, fcn, args, username, org, _retryAttempts) {
     if (typeof _retryAttempts === "undefined") {
-        _retryAttempts = 10; // TODO: default attempts count
+        _retryAttempts = INVOKE_RETRIES;
     }
 
     logger.debug(util.format('\n============ invoke transaction as %s@%s ============\n', username, org));
