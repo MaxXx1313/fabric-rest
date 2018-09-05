@@ -30,7 +30,7 @@ Environment
 * `CONFIG_FILE` - ledger config file (default is `../artifacts/network-config.json`).
 It can be either `network-config.json` format, or `ibp-config.json` format (preferred).
 * `MAX_ATTEMPTS` - (since `0.12.2`) number of attepmpts to reconnect to event hub during start-up (default is `3`). If it was connected at least one time, this limit doesn't matter.
-
+* `INVOKE_TIMEOUT` - (since `0.12.12`) timeout of waiting the block during smart contract invocation
 
 Known issues
 ======================

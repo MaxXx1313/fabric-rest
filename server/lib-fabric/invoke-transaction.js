@@ -17,13 +17,15 @@
 const util = require('util');
 const tools = require('../lib/tools.js');
 
-const config = require('../config.json');
+// const config = require('../config.json');
 const helper = require('./helper.js');
 const logger = helper.getLogger('invoke-chaincode');
 
 // const hfc = require('./hfc'); // jshint ignore:line
 // const FabricClient = require('./FabricClient.js');
-const peerListener = require('./peer-listener');
+// const peerListener = require('./peer-listener');
+
+const INVOKE_TIMEOUT = parseInt(process.env.INVOKE_TIMEOUT) || 120000;
 
 
 // Invoke transaction on chaincode on target peers
@@ -98,35 +100,45 @@ function invokeChaincode(peersUrls, channelID, chaincodeName, fcn, args, usernam
         })
         .then((results) => {
             // a real application would check the proposal results
-            console.log('Successfully endorsed proposal to invoke chaincode');
+            logger.info('Successfully endorsed proposal to invoke chaincode');
 
             // start block may be null if there is no need to resume or replay
-            let start_block = null; // getBlockFromSomewhere();
+            let start_block; // getBlockFromSomewhere();
 
-            let event_monitor = new Promise((resolve, reject) => {
-                let handle = setTimeout(() => {
+            // set the transaction listener and set a timeout of 30sec
+            // if the transaction did not get committed within the timeout period,
+            // fail the test
+            const transactionID = tx_id.getTransactionID();
+            const event_monitor = new Promise((resolve, reject) => {
+                const handle = setTimeout(() => {
                     // do the housekeeping when there is a problem
-                    channel_event_hub.unregisterTxEvent(tx_id);
-                    console.log('Timeout - Failed to receive the transaction event');
-                    reject(new Error('Timed out waiting for block event'));
-                }, 20000);
+                    channel_event_hub.unregisterTxEvent(transactionID);
 
-                channel_event_hub.registerTxEvent((tx_id, status, block_num) => {
+                    logger.error('Timeout - Failed to receive the transaction event after %d milliseconds', INVOKE_TIMEOUT);
+                    reject(new Error(`Timed out waiting for block event after ${INVOKE_TIMEOUT} milliseconds`));
+                }, INVOKE_TIMEOUT);
+
+                channel_event_hub.registerTxEvent(/* transactionID, */function(tx_id, status, block_num) {
+                        // console.log(arguments);
                         clearTimeout(handle);
                         //channel_event_hub.unregisterTxEvent(event_tx_id); let the default do this
-                        console.log('Successfully received the transaction event for block:', block_num);
-                        console.log(tx_id, status, block_num);
+                        logger.info('Successfully received the transaction event for block:', block_num);
+                        // console.log(tx_id, status, block_num);
                         // storeBlockNumForLater(block_num);
                         resolve(status);
 
                     }, (error) => {
                         clearTimeout(handle);
-                        console.log('Failed to receive the transaction event ::' + error);
+                        logger.error('Failed to receive the transaction event ::' + error);
                         reject(error);
                     },
                     // when this `startBlock` is null (the normal case) transaction
                     // checking will start with the latest block
-                    {startBlock: start_block}
+                    {
+                        startBlock: start_block,
+                        unregister: true,
+                        disconnect: true
+                    }
                     // notice that `unregister` is not specified, so it will default to true
                     // `disconnect` is also not specified and will default to false
                 );
@@ -169,7 +181,7 @@ function invokeChaincode(peersUrls, channelID, chaincodeName, fcn, args, usernam
                         let handle = setTimeout(() => {
                             // eh.disconnect();
                             reject(new Error('TIMEOUT'));
-                        }, parseInt(config.eventWaitTime));
+                        }, INVOKE_TIMEOUT);
 
 
                         peerListener.registerTxEvent(transactionID, (tx, code) => {
@@ -200,10 +212,9 @@ function invokeChaincode(peersUrls, channelID, chaincodeName, fcn, args, usernam
                 */
 
         .then((response) => {
-            console.log(response);
+            // console.log(response);
             if (response.status === 'SUCCESS') {
                 logger.info('Successfully sent transaction to the orderer: TXID=', tx_id.getTransactionID());
-                console.log();
                 return tx_id.getTransactionID();
             } else {
                 logger.error('Failed to order the transaction. Error code: ' + response.status);
