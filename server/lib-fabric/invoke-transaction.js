@@ -118,7 +118,7 @@ function invokeChaincode(peersUrls, channelID, chaincodeName, fcn, args, usernam
                     reject(new Error(`Timed out waiting for block event after ${INVOKE_TIMEOUT} milliseconds`));
                 }, INVOKE_TIMEOUT);
 
-                channel_event_hub.registerTxEvent(/* transactionID, */function(tx_id, status, block_num) {
+                channel_event_hub.registerTxEvent( transactionID, function(tx_id, status, block_num) {
                         // console.log(arguments);
                         clearTimeout(handle);
                         //channel_event_hub.unregisterTxEvent(event_tx_id); let the default do this
