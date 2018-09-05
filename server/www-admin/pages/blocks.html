@@ -17,7 +17,7 @@
 
 
 <div class="row">
-  <div class="col m1" style="height: 100vh; overflow-y: scroll">
+  <div class="col m1" style="min-width: 80px; height: 100vh; overflow-y: scroll">
     <div ng-show="selectedChannel" style="zoom: 70%">
       <jigsaw class="outline" ng-repeat="b in ctl.blocks" bottom="true" ng-click="ctl.loadBlockInfo(b.index)">{{::b.index}}</jigsaw>
 
