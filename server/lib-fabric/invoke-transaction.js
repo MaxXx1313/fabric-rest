@@ -14,17 +14,16 @@
  *  limitations under the License.
  */
 'use strict';
-var path = require('path'); // jshint ignore:line
-var util = require('util');
-var tools = require('../lib/tools.js');
+const util = require('util');
+const tools = require('../lib/tools.js');
 
-var config = require('../config.json');
-var helper = require('./helper.js');
-var logger = helper.getLogger('invoke-chaincode');
+const config = require('../config.json');
+const helper = require('./helper.js');
+const logger = helper.getLogger('invoke-chaincode');
 
-var hfc = require('./hfc'); // jshint ignore:line
-// var FabricClient = require('./FabricClient.js');
-var peerListener = require('./peer-listener');
+// const hfc = require('./hfc'); // jshint ignore:line
+// const FabricClient = require('./FabricClient.js');
+const peerListener = require('./peer-listener');
 
 
 // Invoke transaction on chaincode on target peers
@@ -38,20 +37,20 @@ function invokeChaincode(peersUrls, channelID, chaincodeName, fcn, args, usernam
     // var channel = client.getChannel(channelID);
     // var targets = FabricClient.newPeers(peersUrls);
 
-    var targets = helper.newPeers(peersUrls);
-    var tx_id = null;
-    var channel;
+    const targets = helper.newPeers(peersUrls);
+    let tx_id = null;
+    let channel;
 
     return helper.getChannelForOrg(channelID, username, org)
         .then(_channel => {
             channel = _channel;
-            var client = channel.getClient();
+            const client = channel.getClient();
 
             //
             tx_id = client.newTransactionID();
             logger.debug('Sending transaction proposal "%j"', tools.replaceBuffer(tx_id));
             // send proposal to endorser
-            var request = {
+            let request = {
                 targets: targets,
                 chaincodeId: chaincodeName,
                 fcn: fcn,
@@ -63,12 +62,12 @@ function invokeChaincode(peersUrls, channelID, chaincodeName, fcn, args, usernam
         })
 
         .then((results) => {
-            var proposalResponses = results[0] || [];
-            var proposal = results[1];
-            var lastError = null;
-            for (var i = 0, n = proposalResponses.length; i < n; i++) {
-                var response = proposalResponses[i] || {};
-                var prResponseStatus = response.response ? response.response.status : -1;
+            const proposalResponses = results[0] || [];
+            const proposal = results[1];
+            let lastError = null;
+            for (let i = 0, n = proposalResponses.length; i < n; i++) {
+                let response = proposalResponses[i] || {};
+                let prResponseStatus = response.response ? response.response.status : -1;
                 if (prResponseStatus === 200) {
                     logger.info('transaction proposal was good');
                 } else {
@@ -88,7 +87,7 @@ function invokeChaincode(peersUrls, channelID, chaincodeName, fcn, args, usernam
                 proposalResponses[0].endorsement.signature.toString('base64')
             ));
 
-            var request = {
+            const request = {
                 proposalResponses: proposalResponses,
                 proposal: proposal
             };
@@ -97,7 +96,7 @@ function invokeChaincode(peersUrls, channelID, chaincodeName, fcn, args, usernam
             // set the transaction listener and set a timeout of 30sec
             // if the transaction did not get committed within the timeout period,
             // fail the test
-            var transactionID = tx_id.getTransactionID();
+            const transactionID = tx_id.getTransactionID();
 
             let txPromise = new Promise((resolve, reject) => { // jshint ignore:line
                 let handle = setTimeout(() => {
@@ -112,7 +111,7 @@ function invokeChaincode(peersUrls, channelID, chaincodeName, fcn, args, usernam
 
                     if (code !== 'VALID') {
                         logger.warn('Invoke failed, code = ' + code);
-                        var e = new Error('Invoke failed: ' + code);
+                        const e = new Error('Invoke failed: ' + code);
                         e.code = code;
                         reject(e);
                     } else {
@@ -123,7 +122,7 @@ function invokeChaincode(peersUrls, channelID, chaincodeName, fcn, args, usernam
             });
 
             logger.debug('Committing transaction "%j"', tools.replaceBuffer(tx_id));
-            var sendPromise = channel.sendTransaction(request);
+            const sendPromise = channel.sendTransaction(request);
             return Promise.all([sendPromise, txPromise]).then((results) => {
                 // return Promise.all([sendPromise].concat(eventPromises)).then((results) => {
                 logger.debug(' event promise all complete and testing complete');
