@@ -1,6 +1,7 @@
 Changelog
 =========
 ## 0.12.12
+* pass transaction ID to channel event listener
 * use channel event hub to perform invoke transaction
 * log grpc stream error (for debug purpose)
 
