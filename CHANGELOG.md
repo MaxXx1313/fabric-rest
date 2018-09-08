@@ -2,6 +2,7 @@ Changelog
 =========
 ## 0.12.12
 * use channel event hub to perform invoke transaction
+* log grpc stream error (for debug purpose)
 
 ## 0.12.11
 * use channel event hub to perform invoke transaction

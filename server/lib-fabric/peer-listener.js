@@ -60,7 +60,19 @@ function _connect(channel) {
             blockEvents.emit('connected');
             logger.debug(util.format('\n(((((((((((( listen for blocks in channel %s: %s )))))))))))\n', channelName, eh._peer._url));
 
+
+            eh._stream.on('error', __logStreamError);
         }
+    }
+
+    function __logStreamError(err) {
+        console.log('***********************************************');
+        console.log('            Channel error occurred             ');
+        console.log('***********************************************');
+        console.log(err);
+        console.log(JSON.stringify(err));
+
+        __connect(channel);
     }
 
 
