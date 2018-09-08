@@ -1,9 +1,14 @@
 Changelog
 =========
+## 0.12.12
+* use channel event hub to perform invoke transaction
 
 ## 0.12.11
 * use channel event hub to perform invoke transaction
 * added grpc options to peers and orderer
+* set grpc opts tighter per IBM recommendation
+
+## 0.12.7 - 0.12.10
 * set grpc opts tighter per IBM recommendation
 
 ## 0.12.6

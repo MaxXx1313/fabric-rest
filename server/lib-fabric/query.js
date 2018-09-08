@@ -14,8 +14,9 @@
  *  limitations under the License.
  */
 "use strict";
-var helper = require('./helper.js');
-var logger = helper.getLogger('Query');
+const helper = require('./helper.js');
+const logger = helper.getLogger('Query');
+const peerListener = require('../lib-fabric/peer-listener.js');
 
 
 const MAX_QUERY_BLOCKS = 100;
@@ -41,6 +42,8 @@ var queryChaincode = function(peer, channelID, chaincodeName, args, fcn, usernam
   return helper.getChannelForOrg(channelID, username, org)
     .then(channel=>{
       var client = channel.getClient();
+
+      peerListener.listenChannel(channel);
 
       var tx_id = client.newTransactionID();
       // send query
@@ -232,7 +235,7 @@ const getBlockList = function(peer, channelID, lastIndex, params, username, org)
 
   params = params || {};
 
-  const limit = params.limit || 10;
+  let limit = params.limit || 10;
   if (!limit || limit > MAX_QUERY_BLOCKS) {
     limit = MAX_QUERY_BLOCKS
   }

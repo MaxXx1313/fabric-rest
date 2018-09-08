@@ -83,11 +83,19 @@ angular.module('nsd.directive.blockchain', ['nsd.service.socket'])
       };
 
       ctl.getBlockType = function(block){
-        try{
-          return ''+block.data.data[0].payload.header.channel_header.type;
-        }catch(e){
-          return null;
-        }
+          try{
+              return ''+block.data.data[0].payload.header.channel_header.type;
+          }catch(e){
+              return null;
+          }
+      };
+
+      ctl.getBlockTxId = function(block){
+          try{
+              return block.data.data[0].payload.header.channel_header.tx_id;
+          }catch(e){
+              return null;
+          }
       };
 
       /**
@@ -109,9 +117,9 @@ angular.module('nsd.directive.blockchain', ['nsd.service.socket'])
       }
 
       function _blockHtml(block){
-        var tx = block && block.header && block.header.data_hash;
+        var txId = ctl.getBlockTxId(block) || '';
         var type = (ctl.getBlockType(block)||"").toLowerCase();
-        return $('<div class="block block-'+type+'">'+tx.substr(0,3)+'</div>')
+        return $('<div class="block block-'+type+'">'+txId.substr(0,3)+'</div>')
                   .css({left: (blockCount * blockWidth)})
                   .click(_onBlockClick)
                   .hover(getBlockHoverIn(block), onBlockHoverOut);

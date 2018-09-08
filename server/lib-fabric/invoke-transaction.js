@@ -20,6 +20,7 @@ const tools = require('../lib/tools.js');
 // const config = require('../config.json');
 const helper = require('./helper.js');
 const logger = helper.getLogger('invoke-chaincode');
+const peerListener = require('../lib-fabric/peer-listener.js');
 
 // const hfc = require('./hfc'); // jshint ignore:line
 // const FabricClient = require('./FabricClient.js');
@@ -49,6 +50,8 @@ function invokeChaincode(peersUrls, channelID, chaincodeName, fcn, args, usernam
         .then(_channel => {
             channel = _channel;
             const client = channel.getClient();
+
+            peerListener.listenChannel(channel);
 
             channel_event_hub = channel.newChannelEventHub(channel.getPeers()[0]);
 

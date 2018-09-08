@@ -2,18 +2,17 @@
  * Created by maksim on 7/18/17.
  */
 "use strict";
-var log4js = require('log4js');
-var logger = log4js.getLogger('Socket');
-var peerListener = require('../lib-fabric/peer-listener.js');
-var tools = require('../lib/tools');
+const log4js = require('log4js');
+const logger = log4js.getLogger('Socket');
+const peerListener = require('../lib-fabric/peer-listener.js');
+const tools = require('../lib/tools');
 
-var hfc = require('../lib-fabric/hfc');
-var networkConfig = hfc.getConfigSetting('network-config');
+const hfc = require('../lib-fabric/hfc');
+const networkConfig = hfc.getConfigSetting('network-config');
 
 // config
-var config = require('../config.json');
+// var config = require('../config.json');
 
-var hfc   = require('../lib-fabric/hfc');
 const ORG = hfc.getConfigSetting('org');
 const USERNAME = hfc.getConfigSetting('enrollmentConfig').enrollId;
 
@@ -29,14 +28,14 @@ module.exports = {
  */
 function init(io/*, options*/){
 
-  var orgConfig = networkConfig[ORG];
+  const orgConfig = networkConfig[ORG];
   if(!orgConfig){
     throw new Error('No such organisation in config: ' + ORG);
   }
 
   // get any peer on the current organisation
-  var PEERS = Object.keys(orgConfig).filter(k=>k.includes('peer'));
-  var peersAddress = PEERS.map(p=>tools.getHost(networkConfig[ORG][p].requests));
+  const PEERS = Object.keys(orgConfig).filter(k=>k.includes('peer'));
+  const peersAddress = PEERS.map(p=>tools.getHost(networkConfig[ORG][p].requests));
 
   // log connections
   io.on('connection', function(socket){
@@ -47,7 +46,7 @@ function init(io/*, options*/){
   });
 
   //TODO: listen all peers, remove duplicates
-  peerListener.init([peersAddress[0]], USERNAME, ORG); // TODO: wait for the operation finished
+  // peerListener.init([peersAddress[0]], USERNAME, ORG); // TODO: wait for the operation finished
 
   peerListener.registerBlockEvent(function(block){
     // emit globally
@@ -59,11 +58,12 @@ function init(io/*, options*/){
   peerListener.eventHub.on('connecting',   function(){ io.emit('status', 'connecting');   });
   peerListener.eventHub.on('connected',    function(){ io.emit('status', 'connected');    });
 
-  peerListener.listen();
+  // peerListener.listen();
 
   // emit current status for the new clients
   io.on('connection', function(socket){
-    socket.emit('status', peerListener.isConnected() ? 'connected':'disconnected' );
+    // socket.emit('status', peerListener.isConnected() ? 'connected':'disconnected' );
+    socket.emit('status', 'connected');
   });
 
 
